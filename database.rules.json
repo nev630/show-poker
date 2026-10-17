@@ -1,0 +1,16 @@
+{
+  "rules": {
+    "rooms": {
+      "$roomId": {
+        ".read": true,
+        ".write": true,
+        "privateHands": {
+          "$userUid": {
+            ".read": true,
+            ".write": true
+          }
+        }
+      }
+    }
+  }
+}

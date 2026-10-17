@@ -1,0 +1,775 @@
+/* ================= 1. 클래시 로얄 공식 및 한글 웹폰트 정의 ================= */
+/* 영문 & 숫자: Clash Royale 공식 디스플레이 폰트 (Supercell Magic) */
+@font-face {
+  font-family: 'Supercell Magic';
+  src: url('../fonts/Supercell-Magic.woff2') format('woff2'),
+       url('https://cdn.jsdelivr.net/gh/Dabolus/cr-fonts@master/fonts/Supercell-Magic.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Supercell Magic';
+  src: url('../fonts/Supercell-Magic.woff2') format('woff2'),
+       url('https://cdn.jsdelivr.net/gh/Dabolus/cr-fonts@master/fonts/Supercell-Magic.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Supercell Magic';
+  src: url('../fonts/Supercell-Magic.woff2') format('woff2'),
+       url('https://cdn.jsdelivr.net/gh/Dabolus/cr-fonts@master/fonts/Supercell-Magic.woff2') format('woff2');
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* 채팅/메시지: Clash Royale 서브 폰트 (SC CCBackBeat) */
+@font-face {
+  font-family: 'SC CCBackBeat';
+  src: url('../fonts/SCCCBackBeat.woff2') format('woff2'),
+       url('https://cdn.jsdelivr.net/gh/Dabolus/cr-fonts@master/fonts/SCCCBackBeat.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* 한국어: 깔끔하고 가독성 높은 모던 고딕 폰트 스택 (Pretendard & 시스템 고딕) */
+
+:root {
+  --primary-gold: #f59e0b;
+  --primary-gold-light: #fde047;
+  --primary-gold-dark: #b45309;
+  --neon-blue: #38bdf8;
+  --neon-emerald: #10b981;
+  --neon-red: #ef4444;
+  --bg-dark: #080c14;
+  --panel-bg: rgba(15, 23, 42, 0.92);
+  --table-felt: radial-gradient(ellipse at 50% 40%, #1a3828 0%, #0d2218 60%, #06120c 100%);
+  --font-cr: 'Supercell Magic', 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+  --font-cr-body: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+  box-sizing: border-box;
+}
+
+body, button {
+  font-family: 'Supercell Magic', 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+input, select, textarea {
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background-color: var(--bg-dark);
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(56, 189, 248, 0.08) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(245, 158, 11, 0.1) 0px, transparent 50%),
+    radial-gradient(at 50% 100%, rgba(99, 102, 241, 0.08) 0px, transparent 60%);
+  color: #f1f5f9;
+  overflow-x: hidden;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  min-height: 100dvh;
+  touch-action: manipulation;
+}
+
+.font-cinzel,
+.font-clash,
+.font-cr {
+  font-family: 'Supercell Magic', 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif !important;
+}
+
+.font-mono {
+  font-family: 'Supercell Magic', 'JetBrains Mono', 'Pretendard', monospace !important;
+}
+
+.font-code {
+  font-family: 'JetBrains Mono', monospace !important;
+}
+
+/* 텍스트 2줄 꺾임 방지 전역 클래스 */
+.no-wrap {
+  white-space: nowrap !important;
+}
+
+/* 프리미엄 글래스모피즘 헤더 */
+.glass-header {
+  background: rgba(11, 17, 32, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(245, 158, 11, 0.2);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+/* 포커 테이블 아레나 펠트 (고급 가죽 레일 & 황금 엣지) */
+.poker-felt-table {
+  background: var(--table-felt);
+  border: 5px solid #28170b;
+  border-radius: 24px;
+  box-shadow: 
+    inset 0 0 50px rgba(0, 0, 0, 0.9),
+    0 10px 30px rgba(0, 0, 0, 0.85),
+    0 0 0 1.5px #d97706,
+    0 0 20px rgba(217, 119, 6, 0.25);
+  position: relative;
+}
+
+@media (min-width: 640px) {
+  .poker-felt-table {
+    border-width: 10px;
+    border-radius: 44px;
+    box-shadow: 
+      inset 0 0 90px rgba(0, 0, 0, 0.9),
+      0 20px 45px rgba(0, 0, 0, 0.9),
+      0 0 0 2px #d97706,
+      0 0 35px rgba(217, 119, 6, 0.3);
+  }
+}
+
+/* 팟(Pot) 카운터 박스 (화려한 보물 더미 연출) */
+.pot-container {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.25) 0%, rgba(15, 23, 42, 0.95) 100%);
+  border: 1.5px solid #fbbf24;
+  border-radius: 18px;
+  box-shadow: 
+    0 0 25px rgba(245, 158, 11, 0.4),
+    inset 0 1px 1px rgba(255, 255, 255, 0.3);
+  animation: potPulseGlow 3s infinite ease-in-out;
+}
+
+@keyframes potPulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 18px rgba(245, 158, 11, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 35px rgba(245, 158, 11, 0.65), inset 0 1px 2px rgba(255, 255, 255, 0.6);
+  }
+}
+
+/* 턴 인디케이터 펄스 */
+.turn-active-glow {
+  box-shadow: 0 0 0 2px #10b981, 0 0 18px rgba(16, 185, 129, 0.65);
+  animation: turnPulseActive 1.6s infinite ease-in-out;
+}
+
+@keyframes turnPulseActive {
+  0%, 100% {
+    box-shadow: 0 0 0 2px #10b981, 0 0 14px rgba(16, 185, 129, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 0 4px #34d399, 0 0 26px rgba(52, 211, 153, 0.85);
+  }
+}
+
+/* 입체 3D 게임 액션 버튼 시스템 (손맛 나는 물리적 타건감) */
+.btn-action-3d {
+  position: relative;
+  transition: all 0.1s ease;
+  user-select: none;
+  cursor: pointer;
+  white-space: nowrap;
+  font-family: 'Supercell Magic', 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+  letter-spacing: 0.3px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+}
+
+.btn-action-3d:active {
+  transform: translateY(3px) !important;
+}
+
+/* 황금 베팅(Raise) 버튼 */
+.btn-raise-gold {
+  background: linear-gradient(180deg, #fbbf24 0%, #d97706 100%);
+  color: #451a03;
+  box-shadow: 0 4px 0 #92400e, 0 8px 15px rgba(245, 158, 11, 0.4);
+  border: 1px solid #fef08a;
+}
+.btn-raise-gold:active {
+  box-shadow: 0 1px 0 #92400e, 0 3px 6px rgba(245, 158, 11, 0.3);
+}
+
+/* 푸른 콜(Call) 버튼 */
+.btn-call-blue {
+  background: linear-gradient(180deg, #38bdf8 0%, #2563eb 100%);
+  color: #ffffff;
+  box-shadow: 0 4px 0 #1e3a8a, 0 8px 15px rgba(37, 99, 235, 0.4);
+  border: 1px solid #93c5fd;
+}
+.btn-call-blue:active {
+  box-shadow: 0 1px 0 #1e3a8a, 0 3px 6px rgba(37, 99, 235, 0.3);
+}
+
+/* 붉은 폴드(Fold) 버튼 */
+.btn-fold-red {
+  background: linear-gradient(180deg, #334155 0%, #1e293b 100%);
+  color: #f87171;
+  box-shadow: 0 4px 0 #0f172a, 0 6px 12px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(248, 113, 113, 0.3);
+}
+.btn-fold-red:active {
+  box-shadow: 0 1px 0 #0f172a, 0 2px 4px rgba(0, 0, 0, 0.4);
+}
+
+/* 퀵 베팅 칩 버튼 */
+.btn-chip {
+  background: rgba(30, 41, 59, 0.9);
+  border: 1px solid #475569;
+  box-shadow: 0 2px 0 #0f172a, 0 4px 8px rgba(0,0,0,0.4);
+  transition: all 0.1s ease;
+  white-space: nowrap;
+}
+.btn-chip:hover {
+  border-color: #fbbf24;
+  color: #fbbf24;
+}
+.btn-chip:active {
+  transform: translateY(2px);
+  box-shadow: 0 0 0 #0f172a;
+}
+
+/* 올인 칩 버튼 */
+.btn-chip-allin {
+  background: linear-gradient(180deg, #7f1d1d 0%, #450a0a 100%);
+  border: 1px solid #f87171;
+  color: #fecaca;
+  box-shadow: 0 2px 0 #280505, 0 4px 10px rgba(239, 68, 68, 0.4);
+}
+
+/* 토너먼트 브래킷 노드 (e스포츠 카드) */
+.bracket-node {
+  background: linear-gradient(180deg, rgba(30, 41, 59, 0.9) 0%, rgba(15, 23, 42, 0.95) 100%);
+  border: 1.5px solid #475569;
+  border-radius: 12px;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+.bracket-node:hover {
+  border-color: #f59e0b;
+  box-shadow: 0 0 16px rgba(245, 158, 11, 0.35);
+  transform: translateY(-2px);
+}
+
+.bracket-node.winner {
+  border-color: #10b981;
+  box-shadow: 0 0 16px rgba(16, 185, 129, 0.35);
+}
+
+.bracket-node.active-match {
+  border-color: #38bdf8;
+  box-shadow: 0 0 22px rgba(56, 189, 248, 0.6);
+  animation: bracketPulse 2s infinite alternate;
+}
+
+@keyframes bracketPulse {
+  from { border-color: #38bdf8; }
+  to { border-color: #818cf8; }
+}
+
+/* 관성 스크롤 */
+.smooth-scroll {
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+
+/* 커스텀 스크롤바 */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+::-webkit-scrollbar-track {
+  background: #080c14;
+}
+::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #475569;
+}
+
+/* ================= 실시간 액션 선언 팝업 애니메이션 ================= */
+.action-announcement-badge {
+  position: absolute;
+  left: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 20px;
+  border-radius: 18px;
+  font-family: 'Supercell Magic', 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+  user-select: none;
+  will-change: transform, opacity;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.85);
+  pointer-events: none;
+  z-index: 44;
+}
+
+/* 1. 아래쪽 선수 액션 (본인 또는 선수1): 아래에서 위로 솟아오름 */
+.action-announcement-badge.pos-bottom {
+  bottom: 22%;
+  animation: actionPopupBurstBottom 1.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@media (min-width: 640px) {
+  .action-announcement-badge.pos-bottom {
+    bottom: 24%;
+  }
+}
+
+/* 2. 위쪽 선수 액션 (상대방 또는 선수2): 위에서 아래로 꽂힘 */
+.action-announcement-badge.pos-top {
+  top: 15%;
+  animation: actionPopupBurstTop 1.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@media (min-width: 640px) {
+  .action-announcement-badge.pos-top {
+    top: 17%;
+  }
+}
+
+/* 3. 중앙 중립 액션: 정가운데에서 확대 */
+.action-announcement-badge.pos-center {
+  top: 50%;
+  animation: actionPopupBurstCenter 1.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+/* 아래쪽 선수 팝업 모션: 아래에서 위로 솟구침 */
+@keyframes actionPopupBurstBottom {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(40px) scale(0.35);
+    filter: brightness(2.2);
+  }
+  18% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(-6px) scale(1.15);
+    filter: brightness(1.2);
+  }
+  28% {
+    transform: translateX(-50%) translateY(0) scale(1);
+    filter: brightness(1);
+  }
+  75% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-22px) scale(1.08);
+    filter: blur(5px);
+  }
+}
+
+/* 위쪽 선수 팝업 모션: 위에서 아래로 꽂힘 */
+@keyframes actionPopupBurstTop {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-40px) scale(0.35);
+    filter: brightness(2.2);
+  }
+  18% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(6px) scale(1.15);
+    filter: brightness(1.2);
+  }
+  28% {
+    transform: translateX(-50%) translateY(0) scale(1);
+    filter: brightness(1);
+  }
+  75% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(22px) scale(1.08);
+    filter: blur(5px);
+  }
+}
+
+/* 중앙 중립 액션 팝업 모션: 정중앙에서 확장 */
+@keyframes actionPopupBurstCenter {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.35);
+    filter: brightness(2.2);
+  }
+  18% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.15);
+    filter: brightness(1.25);
+  }
+  28% {
+    transform: translate(-50%, -50%) scale(1);
+    filter: brightness(1);
+  }
+  75% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1.08);
+    filter: blur(5px);
+  }
+}
+
+.action-badge-sub {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: -0.2px;
+  opacity: 0.95;
+  margin-bottom: 2px;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+}
+
+.action-badge-main {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.action-badge-emoji {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.action-badge-text {
+  font-size: 19px;
+  font-weight: 900;
+  letter-spacing: -0.5px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+.action-badge-amount {
+  font-family: 'Supercell Magic', monospace;
+  font-size: 19px;
+  font-weight: 900;
+  padding: 1px 7px;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.35);
+  letter-spacing: 0.5px;
+}
+
+@media (min-width: 640px) {
+  .action-announcement-badge {
+    padding: 14px 32px;
+    border-radius: 24px;
+  }
+  .action-badge-sub {
+    font-size: 13px;
+  }
+  .action-badge-emoji {
+    font-size: 28px;
+  }
+  .action-badge-text {
+    font-size: 26px;
+  }
+  .action-badge-amount {
+    font-size: 25px;
+    padding: 2px 10px;
+  }
+}
+
+/* 1. 베팅 (골드 앰버) */
+.badge-bet {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.96) 0%, rgba(217, 119, 6, 0.98) 100%);
+  border: 2px solid #fef08a;
+  color: #fff;
+  box-shadow: 0 0 40px rgba(245, 158, 11, 0.75), 0 10px 25px rgba(0, 0, 0, 0.85);
+}
+.badge-bet .action-badge-amount {
+  color: #fef08a;
+  border: 1px solid rgba(254, 240, 138, 0.5);
+}
+
+/* 2. 콜 (일렉트릭 사이언) */
+.badge-call {
+  background: linear-gradient(135deg, rgba(14, 165, 233, 0.96) 0%, rgba(3, 105, 161, 0.98) 100%);
+  border: 2px solid #7dd3fc;
+  color: #fff;
+  box-shadow: 0 0 40px rgba(56, 189, 248, 0.75), 0 10px 25px rgba(0, 0, 0, 0.85);
+}
+.badge-call .action-badge-amount {
+  color: #bae6fd;
+  border: 1px solid rgba(186, 230, 253, 0.5);
+}
+
+/* 3. 올인 (화염 레드 & 골드) */
+.badge-allin {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.96) 0%, rgba(185, 28, 28, 0.98) 100%);
+  border: 2px solid #fca5a5;
+  color: #fff;
+  box-shadow: 0 0 50px rgba(239, 68, 68, 0.85), 0 10px 25px rgba(0, 0, 0, 0.85);
+}
+.badge-allin .action-badge-amount {
+  color: #fef08a;
+  border: 1px solid rgba(254, 240, 138, 0.6);
+}
+
+/* 4. 폴드 (차분한 슬레이트) */
+.badge-fold {
+  background: linear-gradient(135deg, rgba(51, 65, 85, 0.96) 0%, rgba(30, 41, 59, 0.98) 100%);
+  border: 2px solid #94a3b8;
+  color: #e2e8f0;
+  box-shadow: 0 0 30px rgba(100, 116, 139, 0.5), 0 10px 25px rgba(0, 0, 0, 0.85);
+}
+
+/* 버튼 즉각 피드백 효과 */
+.btn-action-pressed {
+  transform: scale(0.94) !important;
+  filter: brightness(1.3) !important;
+}
+
+/* ================= 9. 쇼다운 전환 및 모달 애니메이션 시스템 ================= */
+
+/* 테이블 위 쇼다운 예고 전환 배너 (정중앙 출력) */
+.showdown-transition-banner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 45;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 28px;
+  background: radial-gradient(ellipse at center, rgba(30, 41, 59, 0.98) 0%, rgba(11, 17, 32, 0.98) 100%);
+  border: 2px solid #fbbf24;
+  border-radius: 22px;
+  box-shadow: 
+    0 0 50px rgba(245, 158, 11, 0.55),
+    0 20px 45px rgba(0, 0, 0, 0.9),
+    inset 0 1px 2px rgba(255, 255, 255, 0.4);
+  animation: showdownBannerAnim 1.25s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  pointer-events: none;
+  user-select: none;
+  max-width: 90%;
+}
+
+@keyframes showdownBannerAnim {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.35);
+    filter: brightness(2.2);
+  }
+  18% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.12);
+    filter: brightness(1.3);
+  }
+  30% {
+    transform: translate(-50%, -50%) scale(1);
+    filter: brightness(1);
+  }
+  80% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1.06);
+  }
+}
+
+.showdown-trans-swords {
+  font-size: 32px;
+  filter: drop-shadow(0 0 12px rgba(245, 158, 11, 0.8));
+  animation: showdownSwordsClash 0.55s ease-out;
+}
+
+@keyframes showdownSwordsClash {
+  0% { transform: scale(2.2) rotate(-25deg); opacity: 0; }
+  50% { transform: scale(1.2) rotate(10deg); opacity: 1; }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+.showdown-trans-title {
+  font-family: 'Supercell Magic', 'Pretendard', sans-serif;
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: 2px;
+  color: #fbbf24;
+  text-shadow: 0 3px 6px rgba(0, 0, 0, 0.9), 0 0 20px rgba(245, 158, 11, 0.6);
+  margin-top: 2px;
+}
+
+@media (min-width: 640px) {
+  .showdown-transition-banner {
+    padding: 18px 36px;
+  }
+  .showdown-trans-title {
+    font-size: 28px;
+  }
+}
+
+.showdown-trans-sub {
+  font-family: 'Pretendard', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  color: #e2e8f0;
+  letter-spacing: -0.3px;
+  margin-top: 4px;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+}
+
+@media (min-width: 640px) {
+  .showdown-trans-sub {
+    font-size: 14px;
+  }
+}
+
+.showdown-trans-pot {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(245, 158, 11, 0.2);
+  border: 1px solid rgba(245, 158, 11, 0.5);
+  padding: 4px 14px;
+  border-radius: 9999px;
+  color: #fbbf24;
+  font-family: 'Cinzel', serif;
+  font-size: 13px;
+  font-weight: 800;
+  margin-top: 8px;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+}
+
+@media (min-width: 640px) {
+  .showdown-trans-pot {
+    font-size: 15px;
+    padding: 5px 18px;
+  }
+}
+
+/* 쇼다운 결전 대형 판돈 사이드 보드 (옆에 크게 따로 표시) */
+.showdown-side-pot-board {
+  background: linear-gradient(180deg, rgba(30, 20, 10, 0.95) 0%, rgba(15, 23, 42, 0.98) 50%, rgba(30, 20, 10, 0.95) 100%);
+  border: 2px solid rgba(245, 158, 11, 0.65);
+  box-shadow: 0 0 25px rgba(245, 158, 11, 0.18), inset 0 0 20px rgba(0, 0, 0, 0.7);
+  border-radius: 1.25rem;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.showdown-side-pot-board:hover {
+  border-color: rgba(245, 158, 11, 0.9);
+  box-shadow: 0 0 35px rgba(245, 158, 11, 0.3), inset 0 0 20px rgba(0, 0, 0, 0.7);
+}
+
+/* 쇼다운 모달 전체 오버레이 트랜지션 */
+#modal-showdown {
+  opacity: 0;
+  backdrop-filter: blur(0px);
+  -webkit-backdrop-filter: blur(0px);
+  transition: opacity 0.38s cubic-bezier(0.16, 1, 0.3, 1), backdrop-filter 0.38s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, backdrop-filter;
+}
+
+#modal-showdown.showdown-modal-active {
+  opacity: 1;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+/* 쇼다운 모달 내부 다이얼로그 팝업 모션 */
+#modal-showdown .showdown-modal-box {
+  transform: scale(0.88) translateY(28px);
+  opacity: 0;
+  transition: transform 0.42s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.32s ease;
+  will-change: transform, opacity;
+}
+
+#modal-showdown.showdown-modal-active .showdown-modal-box {
+  transform: scale(1) translateY(0);
+  opacity: 1;
+}
+
+/* 매치 승리 축하 글로벌 모달 애니메이션 */
+#modal-match-winner > div {
+  transform: scale(0.85) translateY(20px);
+  transition: transform 0.38s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+#modal-match-winner.opacity-100 > div {
+  transform: scale(1) translateY(0);
+}
+
+/* 쇼다운 카드 3D 뒤집기 공개 시 팝업 & 하이라이트 효과 */
+.poker-card.showdown-revealing {
+  animation: showdownCardRevealPulse 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+  z-index: 10;
+}
+
+@keyframes showdownCardRevealPulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1) translateY(-6px);
+    box-shadow: 0 0 20px rgba(245, 158, 11, 0.7);
+  }
+  100% {
+    transform: scale(1) translateY(0);
+  }
+}
+
+
+/* 쇼다운 모달 중앙 VS 배지 */
+.showdown-vs-badge {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  will-change: transform, box-shadow;
+}
+
+.showdown-vs-badge.showdown-vs-pulse {
+  animation: showdownVsPulse 0.55s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes showdownVsPulse {
+  0% {
+    transform: scale(0.6) rotate(-15deg);
+    box-shadow: 0 0 0 rgba(245, 158, 11, 0);
+  }
+  50% {
+    transform: scale(1.3) rotate(5deg);
+    box-shadow: 0 0 25px rgba(245, 158, 11, 0.8), 0 0 35px rgba(6, 182, 212, 0.6);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.6);
+  }
+}
+
+/* 쇼다운 승리 판정 버튼 / 관전자 안내 부드러운 순차 등장 */
+.showdown-controls-reveal {
+  animation: showdownControlsFadeIn 0.5s ease 2.65s backwards;
+}
+
+@keyframes showdownControlsFadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(14px) scale(0.96);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+

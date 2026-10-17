@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>무력 포커 (Show Poker) - 실시간 8인 토너먼트</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Supercell Magic"', 'Pretendard', '-apple-system', 'BlinkMacSystemFont', '"Apple SD Gothic Neo"', '"Noto Sans KR"', '"Malgun Gothic"', 'sans-serif'],
+            cinzel: ['"Supercell Magic"', 'Pretendard', '-apple-system', 'BlinkMacSystemFont', '"Apple SD Gothic Neo"', 'sans-serif'],
+            mono: ['"Supercell Magic"', '"JetBrains Mono"', 'Pretendard', 'monospace'],
+            clash: ['"Supercell Magic"', 'Pretendard', '-apple-system', 'BlinkMacSystemFont', '"Apple SD Gothic Neo"', 'sans-serif']
+          },
+          colors: {
+            gold: {
+              400: '#fbbf24',
+              500: '#f59e0b',
+              600: '#d97706',
+              700: '#b45309',
+            },
+            arena: {
+              900: '#070b12',
+              800: '#0f172a',
+              700: '#1e293b',
+              felt: '#133022',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Canvas Confetti -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+  <!-- Pretendard: 깔끔한 고딕 웹폰트 -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+  <!-- Custom Styles with Cache Buster -->
+  <link rel="stylesheet" href="css/style.css?v=20261017_24">
+  <link rel="stylesheet" href="css/cards.css?v=20261017_24">
+</head>
+<body class="bg-arena-900 text-slate-100 min-h-screen flex flex-col antialiased selection:bg-gold-500 selection:text-black">
+
+  <!-- 상단 네비게이션 헤더 (초간결 & 가독성 극대화) -->
+  <header class="bg-arena-800/95 backdrop-blur-md border-b border-slate-700/80 sticky top-0 z-40 px-2.5 py-2 sm:px-4 sm:py-2.5">
+    <div class="max-w-7xl mx-auto flex items-center justify-between gap-2">
+      <!-- 좌측: 로고 및 타이틀 (절대 줄바꿈 없는 깔끔한 골드 로고) -->
+      <div class="flex items-center gap-2 sm:gap-2.5 flex-shrink-0 min-w-0">
+        <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-gradient-to-tr from-amber-500 to-yellow-400 flex items-center justify-center shadow-md shadow-amber-500/20 flex-shrink-0">
+          <i data-lucide="swords" class="w-4 h-4 text-slate-950 font-black"></i>
+        </div>
+        <div class="flex items-center whitespace-nowrap">
+          <span class="text-sm sm:text-base font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-500 font-cinzel whitespace-nowrap">무력 포커</span>
+        </div>
+      </div>
+
+      <!-- 우측: 방 정보 및 심플 컨트롤 아이콘 바 -->
+      <div class="flex items-center gap-1 sm:gap-1.5 flex-shrink-0">
+        <div id="room-status-badge" class="hidden items-center gap-1 sm:gap-1.5 px-2 py-1 rounded-lg bg-slate-800/90 border border-slate-700/80 text-[11px] sm:text-xs shadow-md whitespace-nowrap flex-shrink-0">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse flex-shrink-0"></span>
+          <span id="room-code-display" class="font-mono font-bold text-amber-400">ROOM</span>
+          <button id="btn-copy-link" class="text-slate-400 hover:text-white p-0.5 ml-0.5 transition" title="초대 링크 복사">
+            <i data-lucide="share-2" class="w-3 h-3 sm:w-3.5 sm:h-3.5"></i>
+          </button>
+          <button id="btn-leave-room" class="text-slate-400 hover:text-red-400 p-0.5 ml-1 pl-1 border-l border-slate-700 transition" title="방 나가기 (로비로 이동)">
+            <i data-lucide="log-out" class="w-3 h-3 sm:w-3.5 sm:h-3.5"></i>
+          </button>
+        </div>
+
+        <button id="btn-card-list" class="p-1.5 sm:px-2.5 sm:py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition flex items-center gap-1 text-xs font-semibold flex-shrink-0" title="전체 카드 및 유닛 도감">
+          <i data-lucide="layers" class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-400 flex-shrink-0"></i>
+          <span class="hidden md:inline text-[11px]">도감</span>
+        </button>
+
+        <button id="btn-rules" class="p-1.5 sm:px-2.5 sm:py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition flex items-center gap-1 text-xs font-semibold flex-shrink-0" title="게임 규칙">
+          <i data-lucide="book-open" class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-400 flex-shrink-0"></i>
+          <span class="hidden md:inline text-[11px]">규칙</span>
+        </button>
+
+        <button id="btn-sound" class="p-1.5 sm:p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition flex-shrink-0" title="효과음 토글">
+          <i data-lucide="volume-2" id="sound-icon" class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-400"></i>
+        </button>
+
+        <button id="btn-firebase-settings" class="hidden p-1.5 sm:px-2 sm:py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition flex items-center gap-1 text-xs font-semibold flex-shrink-0" title="Firebase 설정">
+          <i data-lucide="database" class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-sky-400 flex-shrink-0"></i>
+          <span id="firebase-status-label" class="hidden md:inline text-[11px]">DB</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- 메인 컨텐츠 영역 (뷰 전환) -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 flex flex-col">
+
+    <!-- 1. 로비 뷰 (방 생성 및 참가) -->
+    <div id="view-lobby" class="flex-1 flex flex-col items-center justify-center py-6">
+      <div class="max-w-md w-full bg-slate-800/90 border border-slate-700 rounded-2xl p-6 sm:p-8 shadow-2xl backdrop-blur-sm">
+        <div class="text-center mb-6">
+          <div class="inline-flex p-3 rounded-2xl bg-amber-500/10 border border-amber-500/20 mb-3 text-amber-400">
+            <i data-lucide="crown" class="w-10 h-10"></i>
+          </div>
+          <h2 class="text-2xl font-black text-white">무력 포커 아레나</h2>
+          <p class="text-sm text-slate-400 mt-1">100골드로 펼치는 심리전과 클래시 친선전 토너먼트</p>
+        </div>
+
+        <!-- 닉네임 입력 -->
+        <div class="mb-4">
+          <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">시청자 / 참가자 닉네임</label>
+          <div class="relative">
+            <i data-lucide="user" class="w-4 h-4 absolute left-3 top-3.5 text-slate-400"></i>
+            <input type="text" id="input-nickname" maxlength="12" placeholder="닉네임 입력 (최대 12자)" autocomplete="off"
+                   class="w-full pl-9 pr-4 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 transition">
+          </div>
+        </div>
+
+        <!-- 방 생성 or 참가 탭 버튼 -->
+        <div class="grid grid-cols-2 gap-2 mb-4 p-1 bg-slate-900 rounded-xl">
+          <button id="tab-join" class="py-2 text-xs font-bold rounded-lg transition bg-amber-500 text-slate-950 shadow">방 참가하기</button>
+          <button id="tab-create" class="py-2 text-xs font-bold rounded-lg transition text-slate-400 hover:text-white">방 만들기 (호스트)</button>
+        </div>
+
+        <!-- 방 참가 폼 -->
+        <div id="form-join" class="space-y-4">
+          <div>
+            <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">방 코드 (Room Code)</label>
+            <div class="relative">
+              <i data-lucide="hash" class="w-4 h-4 absolute left-3 top-3.5 text-slate-400"></i>
+              <input type="text" id="input-room-code" placeholder="예: 7777" maxlength="8"
+                     class="w-full pl-9 pr-4 py-2.5 bg-slate-900 border border-slate-700 rounded-xl font-mono text-amber-400 uppercase tracking-wider placeholder-slate-500 focus:outline-none focus:border-amber-500 transition">
+            </div>
+          </div>
+          <button id="btn-action-join" class="w-full py-3 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-slate-950 font-black rounded-xl shadow-lg shadow-amber-500/25 transition transform active:scale-95 flex items-center justify-center gap-2">
+            <i data-lucide="log-in" class="w-5 h-5"></i>
+            <span>방 입장하기</span>
+          </button>
+        </div>
+
+        <!-- 방 생성 폼 -->
+        <div id="form-create" class="space-y-4 hidden">
+          <div>
+            <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">방 제목</label>
+            <div class="relative">
+              <i data-lucide="radio" class="w-4 h-4 absolute left-3 top-3.5 text-slate-400"></i>
+              <input type="text" id="input-room-title" placeholder="방송 라이브 8인 토너먼트" maxlength="30"
+                     class="w-full pl-9 pr-4 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 transition">
+            </div>
+          </div>
+          <button id="btn-action-create" class="w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-black rounded-xl shadow-lg shadow-emerald-500/25 transition transform active:scale-95 flex items-center justify-center gap-2">
+            <i data-lucide="plus-circle" class="w-5 h-5"></i>
+            <span>토너먼트 방 생성</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. 토너먼트 대진표 & 대기실 뷰 -->
+    <div id="view-tournament" class="flex-1 flex flex-col hidden space-y-6">
+      <!-- 상단 방 컨트롤 바 -->
+      <div class="bg-slate-800/80 border border-slate-700/80 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <div class="flex items-center gap-2 flex-wrap">
+            <h2 id="tour-room-title" class="text-lg font-black text-white">토너먼트 대기실</h2>
+            <span id="tour-status-pill" class="text-xs px-2.5 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/30">참가자 모집 중</span>
+            <span id="my-slot-badge" class="hidden text-xs px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold"></span>
+          </div>
+          <p class="text-xs text-slate-400 mt-0.5">8명의 참가자가 채워지면 호스트가 경기를 시작합니다.</p>
+        </div>
+
+        <!-- 호스트 전용 컨트롤 버튼 -->
+        <div id="host-controls" class="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+          <button id="btn-fill-bots" class="px-3 py-1.5 rounded-xl bg-slate-700 hover:bg-slate-600 text-xs font-semibold text-slate-200 transition flex items-center gap-1.5" title="빈자리를 테스트 봇으로 채우기">
+            <i data-lucide="bot" class="w-3.5 h-3.5 text-cyan-400"></i>
+            <span>봇 채우기</span>
+          </button>
+          <button id="btn-manage-slots" class="px-3 py-1.5 rounded-xl bg-slate-700 hover:bg-slate-600 text-xs font-semibold text-slate-200 transition flex items-center gap-1.5" title="참가자 자리 변경 및 퇴장 관리">
+            <i data-lucide="user-cog" class="w-3.5 h-3.5 text-amber-400"></i>
+            <span>자리/참가자 관리</span>
+          </button>
+          <button id="btn-shuffle-bracket" class="px-3 py-1.5 rounded-xl bg-slate-700 hover:bg-slate-600 text-xs font-semibold text-slate-200 transition flex items-center gap-1.5">
+            <i data-lucide="shuffle" class="w-3.5 h-3.5 text-amber-400"></i>
+            <span>대진 셔플</span>
+          </button>
+          <button id="btn-start-tournament" class="px-4 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-slate-950 font-black text-xs transition shadow-md shadow-amber-500/20 flex items-center gap-1.5">
+            <i data-lucide="play" class="w-4 h-4 fill-current"></i>
+            <span>토너먼트 시작</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 모바일 대진표 스크롤 안내 힌트 -->
+      <div class="block sm:hidden text-[11px] font-bold text-amber-400/90 text-center py-1.5 px-3 bg-amber-500/10 border border-amber-500/20 rounded-xl">
+        👉 손가락으로 좌우 스크롤하여 8강 ➔ 4강 ➔ 결승 대진표를 확인하세요
+      </div>
+
+      <!-- 8인 대진표 브래킷 캔버스 -->
+      <div class="flex-1 bg-slate-800/40 border border-slate-700/60 rounded-2xl p-3 sm:p-6 overflow-x-auto smooth-scroll">
+        <div class="min-w-[760px] flex items-center justify-between gap-6 py-4">
+          <!-- 8강 (4경기) -->
+          <div class="flex-1 flex flex-col gap-6" id="bracket-round-8">
+            <div class="text-xs font-black text-slate-400 uppercase tracking-widest text-center mb-1">8강전 (1:1 포커)</div>
+            <!-- 경기 1, 2, 3, 4 동적 렌더링 -->
+          </div>
+
+          <!-- 연결 선 1 -->
+          <div class="flex flex-col justify-around h-full py-12 text-slate-600">
+            <i data-lucide="chevron-right" class="w-6 h-6"></i>
+            <i data-lucide="chevron-right" class="w-6 h-6"></i>
+          </div>
+
+          <!-- 4강 (2경기) -->
+          <div class="flex-1 flex flex-col gap-16 justify-center" id="bracket-round-4">
+            <div class="text-xs font-black text-slate-400 uppercase tracking-widest text-center mb-1">4강 준결승</div>
+            <!-- 경기 5, 6 동적 렌더링 -->
+          </div>
+
+          <!-- 연결 선 2 -->
+          <div class="flex flex-col justify-center h-full text-slate-600">
+            <i data-lucide="chevron-right" class="w-6 h-6"></i>
+          </div>
+
+          <!-- 결승전 (1경기) & 우승 트로피 -->
+          <div class="flex-1 flex flex-col justify-center items-center gap-4" id="bracket-finals">
+            <div class="text-xs font-black text-amber-400 uppercase tracking-widest text-center mb-1">👑 결승전</div>
+            <!-- 결승 매치 카드 -->
+            <div id="bracket-final-match" class="w-full"></div>
+            <!-- 챔피언 트로피 영역 -->
+            <div id="champion-showcase" class="w-full p-4 rounded-2xl bg-gradient-to-b from-amber-500/10 to-transparent border border-amber-500/30 text-center hidden">
+              <i data-lucide="trophy" class="w-10 h-10 text-amber-400 mx-auto mb-2 animate-bounce"></i>
+              <div class="text-xs text-amber-300 font-bold uppercase tracking-wider">최종 우승 챔피언</div>
+              <div id="champion-name" class="text-lg font-black text-white mt-1">-</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. 1:1 포커 대결 테이블 뷰 -->
+    <div id="view-duel" class="flex-1 flex flex-col hidden space-y-4">
+      <!-- 대결 정보 헤더 (고급 e스포츠 스코어보드 바 - 텍스트 2줄 꺾임 100% 방지) -->
+      <div class="bg-gradient-to-r from-slate-900 via-slate-850 to-slate-900 border border-amber-500/30 rounded-2xl p-2.5 sm:p-3 shadow-xl backdrop-blur-md">
+        <!-- 상단 라인: [← 대진표] 버튼과 경기 라운드 뱃지 -->
+        <div class="flex items-center justify-between gap-2 pb-2 border-b border-slate-800">
+          <button id="btn-back-to-bracket" class="flex-shrink-0 px-2.5 py-1 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-200 border border-slate-600/80 transition flex items-center gap-1.5 active:scale-95 shadow-sm whitespace-nowrap">
+            <i data-lucide="arrow-left" class="w-3.5 h-3.5 text-amber-400 flex-shrink-0"></i>
+            <span class="whitespace-nowrap">대진표</span>
+          </button>
+          <div class="flex items-center gap-1.5 flex-nowrap">
+            <span id="duel-round-label" class="px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[11px] sm:text-xs font-black font-cinzel whitespace-nowrap">
+              8강 1경기 - ROUND 1
+            </span>
+          </div>
+        </div>
+
+        <!-- 하단 라인: 직전 베팅 & 선 베팅 정보 (깔끔한 2열 카드 그리드, 절대 줄바꿈 없음) -->
+        <div class="grid grid-cols-2 gap-2 pt-2 text-[11px] sm:text-xs">
+          <div class="flex items-center gap-1.5 bg-slate-950/70 px-2.5 py-1.5 rounded-xl border border-slate-800/80 overflow-hidden">
+            <i data-lucide="trending-up" class="w-3.5 h-3.5 text-amber-400 flex-shrink-0"></i>
+            <span class="text-slate-400 whitespace-nowrap">직전 베팅:</span>
+            <strong id="duel-last-bet" class="text-amber-400 font-mono font-bold whitespace-nowrap ml-auto">0 G</strong>
+          </div>
+          <div class="flex items-center gap-1.5 bg-slate-950/70 px-2.5 py-1.5 rounded-xl border border-slate-800/80 overflow-hidden">
+            <i data-lucide="crown" class="w-3.5 h-3.5 text-yellow-400 flex-shrink-0"></i>
+            <span class="text-slate-400 whitespace-nowrap">선 베팅:</span>
+            <strong id="duel-first-player" class="text-slate-200 font-bold truncate whitespace-nowrap ml-auto">-</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- 포커 테이블 아레나 -->
+      <div class="flex-1 poker-felt-table flex flex-col justify-between p-2 sm:p-5 min-h-[460px] sm:min-h-[580px] relative">
+        
+        <!-- 실시간 액션 선언 애니메이션 레이어 (베팅! / 콜! / 올인! / 폴드!) -->
+        <div id="action-announcement-layer" class="pointer-events-none absolute inset-0 z-40 overflow-hidden"></div>
+
+        <!-- 상단: 상대방 플레이어 영역 -->
+        <div id="opponent-area" class="flex flex-col items-center">
+          <div class="flex items-center gap-2 sm:gap-3 bg-slate-900/95 border border-slate-700/80 px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-xl sm:rounded-2xl shadow-xl backdrop-blur-md mb-1 sm:mb-2 transition-all max-w-full">
+            <div class="w-7 h-7 sm:w-9 sm:h-9 rounded-full bg-red-600/30 border border-red-500/50 flex items-center justify-center font-bold text-red-400 flex-shrink-0">
+              <i data-lucide="sword" class="w-3.5 h-3.5 sm:w-4.5 sm:h-4.5"></i>
+            </div>
+            <div class="flex items-center gap-1.5 sm:gap-3 min-w-0 flex-nowrap">
+              <div class="min-w-0">
+                <div class="flex items-center gap-1 sm:gap-2">
+                  <span id="opp-name" class="font-bold text-xs sm:text-sm text-white truncate max-w-[80px] sm:max-w-[150px] whitespace-nowrap inline-block">상대방</span>
+                  <span id="opp-turn-badge" class="hidden text-[9px] sm:text-xs font-bold px-1.5 sm:px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-400/70 animate-pulse whitespace-nowrap shadow-[0_0_12px_rgba(245,158,11,0.35)] flex-shrink-0">⚡ 턴</span>
+                </div>
+              </div>
+              <!-- 상대방 골드 지갑 배지 -->
+              <div class="inline-flex items-center gap-1 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-xl bg-amber-500/15 border border-amber-400/40 text-amber-300 font-mono font-bold shadow-inner whitespace-nowrap flex-nowrap flex-shrink-0">
+                <div class="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full bg-amber-400 flex items-center justify-center text-slate-950 font-black text-[8px] sm:text-[9px] shadow-sm flex-shrink-0">G</div>
+                <span id="opp-gold" class="text-xs sm:text-sm font-black tracking-wider whitespace-nowrap">100</span>
+                <span class="text-[9px] text-amber-400/80 whitespace-nowrap">G</span>
+                <span id="opp-current-bet" class="text-slate-400 text-[9px] sm:text-[10px] ml-0.5 whitespace-nowrap">(베팅: 0G)</span>
+              </div>
+            </div>
+          </div>
+          <!-- 상대방 손패 (비공개 카드들 - 뒷면 겹침) -->
+          <div id="opp-hand-wrapper" class="flex flex-col items-center mb-1">
+            <div id="opp-hand-container" class="opp-hand-cards"></div>
+          </div>
+        </div>
+
+        <!-- 중앙: 포커 테이블 보드 (테이블 위에 올라간 공개 카드들 & 팟) -->
+        <div id="table-field-zone" class="table-field-zone my-auto py-1 sm:py-2">
+          <!-- 상대방 테이블 공개 카드 -->
+          <div class="w-full flex flex-col items-center mb-1 sm:mb-1.5">
+            <div class="text-[9px] sm:text-[10px] text-slate-400 font-bold tracking-wider mb-0.5 flex items-center gap-1.5 opacity-80">
+              <span class="w-1.5 h-1.5 rounded-full bg-red-400 shadow-sm shadow-red-400"></span>
+              <span id="opp-table-label">상대 테이블 공개 카드</span>
+            </div>
+            <div id="opp-table-cards" class="table-cards-container"></div>
+          </div>
+
+          <!-- 테이블 중앙 팟(Pot) 및 게임 상태 메시지 -->
+          <div class="flex flex-col items-center my-0.5 sm:my-1">
+            <div class="pot-container px-3.5 py-1.5 sm:px-5 sm:py-2 flex items-center gap-2 sm:gap-3 text-center shadow-lg">
+              <div class="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-amber-500/20 border border-amber-400/50 flex items-center justify-center text-amber-400 shadow-inner">
+                <i data-lucide="coins" class="w-3.5 h-3.5 sm:w-4.5 sm:h-4.5"></i>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="text-[9px] sm:text-[10px] text-amber-300 uppercase tracking-widest font-black font-cinzel">POT</span>
+                <span id="table-pot-display" class="text-base sm:text-2xl font-black font-cinzel text-amber-400 font-mono tracking-wider">20 G</span>
+              </div>
+            </div>
+            <div id="table-status-banner" class="mt-1 px-3 py-0.5 rounded-full bg-slate-900/90 border border-slate-700/80 text-[10px] sm:text-[11px] text-slate-300 font-medium max-w-md text-center truncate shadow-sm">
+              경기가 준비되었습니다.
+            </div>
+          </div>
+
+          <!-- 내 테이블 공개 카드 -->
+          <div class="w-full flex flex-col items-center mt-1 sm:mt-1.5">
+            <div id="me-table-cards" class="table-cards-container"></div>
+            <div class="text-[9px] sm:text-[10px] text-slate-400 font-bold tracking-wider mt-0.5 flex items-center gap-1.5 opacity-80">
+              <span class="w-1.5 h-1.5 rounded-full bg-amber-400 shadow-sm shadow-amber-400"></span>
+              <span id="me-table-label">내 테이블 공개 카드</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 하단: 본인 플레이어 영역 & 손패 & 베팅 컨트롤 -->
+        <div id="me-area" class="flex flex-col items-center w-full">
+          <!-- 내 손패 영역 (비공개 카드들 - 부채꼴로 쥐고 있는 손패) -->
+          <div id="me-hand-wrapper" class="flex flex-col items-center mb-1.5 sm:mb-2 w-full">
+            <div class="flex items-center gap-1.5 text-[10px] sm:text-xs font-bold text-amber-300 mb-0.5">
+              <i data-lucide="sparkles" class="w-3 h-3 text-amber-400"></i>
+              <span id="me-hand-title">내 손패 (비공개)</span>
+              <span class="text-[9px] text-slate-400 font-normal hidden sm:inline">• 카드 클릭 시 베팅/콜 제출</span>
+            </div>
+            <div id="me-hand-container" class="hand-cards-container"></div>
+          </div>
+
+          <!-- 본인 정보 & 액션 패널 -->
+          <div id="me-action-panel" class="w-full max-w-xl bg-slate-900/95 border border-slate-700/90 p-2.5 sm:p-4 rounded-2xl shadow-2xl backdrop-blur-md transition-all duration-300">
+            <div class="flex items-center justify-between mb-2 pb-2 border-b border-slate-800 gap-1.5 sm:gap-2">
+              <div class="flex items-center gap-1.5 sm:gap-2.5 min-w-0 flex-1">
+                <div class="w-7 h-7 sm:w-10 sm:h-10 rounded-full bg-gradient-to-tr from-amber-600 to-amber-400 border border-amber-300/60 flex items-center justify-center text-slate-950 font-black shadow-md flex-shrink-0">
+                  <i data-lucide="shield" class="w-3.5 h-3.5 sm:w-5 sm:h-5"></i>
+                </div>
+                <div class="min-w-0 flex-1">
+                  <span id="me-name" class="font-bold text-xs sm:text-sm text-white truncate max-w-[90px] sm:max-w-[140px] whitespace-nowrap block">나의 닉네임</span>
+                  <!-- 내 보유 골드 배지 (절대 2줄로 꺾이지 않는 인라인 황금 지갑) -->
+                  <div class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-amber-500/20 border border-amber-400/50 text-amber-300 font-mono font-bold shadow-[0_0_12px_rgba(245,158,11,0.25)] whitespace-nowrap flex-nowrap flex-shrink-0">
+                    <div class="w-3.5 h-3.5 rounded-full bg-amber-400 flex items-center justify-center text-slate-950 font-black text-[8px] shadow-sm flex-shrink-0">G</div>
+                    <span id="me-gold" class="text-xs sm:text-sm font-black tracking-wider whitespace-nowrap">100</span>
+                    <span class="text-[9px] text-amber-400/90 whitespace-nowrap">G</span>
+                    <span id="me-current-bet" class="text-slate-400 text-[9px] sm:text-[10px] ml-0.5 whitespace-nowrap">(베팅: 0G)</span>
+                  </div>
+                </div>
+              </div>
+              <!-- 턴 상태 인디케이터 (눈에 확 띄는 큰 배지) -->
+              <div class="flex items-center flex-shrink-0">
+                <div id="my-turn-indicator" class="text-[11px] sm:text-xs font-bold px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-full bg-slate-800 text-slate-400 border border-slate-700 whitespace-nowrap transition-all duration-300 shadow-md">
+                  상대방 턴 대기
+                </div>
+              </div>
+            </div>
+
+            <!-- 베팅 / 콜 / 폴드 액션 컨트롤 버튼들 -->
+            <div id="betting-controls" class="space-y-2 sm:space-y-2.5 opacity-50 pointer-events-none transition-opacity">
+              <!-- 베팅 슬라이더 및 올인 단일 행 바 -->
+              <div class="flex items-center gap-1.5 sm:gap-2 bg-slate-950/60 px-2.5 py-1.5 rounded-xl border border-slate-800">
+                <span class="text-[11px] sm:text-xs text-slate-400 font-bold whitespace-nowrap flex-shrink-0">베팅:</span>
+                <input type="range" id="bet-slider" min="10" max="100" step="10" value="10" 
+                       class="flex-1 accent-amber-500 cursor-pointer h-2 bg-slate-800 rounded-lg">
+                <span id="bet-slider-val" class="text-xs sm:text-sm font-mono font-black text-amber-400 w-12 sm:w-14 text-right whitespace-nowrap flex-shrink-0">10 G</span>
+                <button id="btn-quick-allin" class="px-2 py-0.5 sm:px-2.5 sm:py-1 bg-red-950/70 hover:bg-red-900 border border-red-500/50 text-red-300 text-[10px] sm:text-xs font-mono font-bold rounded-lg transition whitespace-nowrap flex-shrink-0 active:scale-95 shadow-sm" title="보유 골드 전액 올인">ALL-IN</button>
+              </div>
+
+              <!-- 3대 메인 3D 액션 버튼: [폴드] [콜] [베팅] (모바일 경계 넘침 완전 방지) -->
+              <div class="grid grid-cols-3 gap-1.5 sm:gap-2 pt-0.5">
+                <button id="btn-action-fold" class="btn-action-3d btn-fold-red py-2.5 sm:py-3 rounded-xl font-bold text-[11px] sm:text-xs flex items-center justify-center gap-1 px-1 sm:px-2 overflow-hidden">
+                  <i data-lucide="flag" class="w-3.5 h-3.5 flex-shrink-0"></i>
+                  <span class="truncate">폴드</span>
+                </button>
+                <button id="btn-action-call" class="btn-action-3d btn-call-blue py-2.5 sm:py-3 rounded-xl font-bold text-[11px] sm:text-xs flex items-center justify-center gap-1 px-1 sm:px-2 overflow-hidden">
+                  <i data-lucide="handshake" class="w-3.5 h-3.5 flex-shrink-0"></i>
+                  <span id="call-btn-text" class="truncate">콜</span>
+                </button>
+                <button id="btn-action-bet" class="btn-action-3d btn-raise-gold py-2.5 sm:py-3 rounded-xl font-black text-[11px] sm:text-xs flex items-center justify-center gap-1 px-1 sm:px-2 overflow-hidden">
+                  <i data-lucide="trending-up" class="w-3.5 h-3.5 flex-shrink-0"></i>
+                  <span id="bet-btn-text" class="truncate">베팅</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- 관전자 / 호스트 전용 중계 패널 (베팅 컨트롤 대신 표시) -->
+            <div id="spectator-broadcast-panel" class="hidden py-4 px-3 text-center bg-slate-950/70 rounded-xl border border-indigo-500/30">
+              <div class="flex items-center justify-center gap-2 text-indigo-400 font-bold text-xs sm:text-sm">
+                <i data-lucide="tv" class="w-4 h-4 animate-pulse"></i>
+                <span>실시간 경기 중계 관전 모드</span>
+              </div>
+              <p class="text-[11px] text-slate-400 mt-1">양 선수의 심리전 베팅과 공개 카드를 라이브로 관전하고 있습니다.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 하단 경기 실시간 텍스트 로그 바 -->
+      <div class="bg-slate-800/60 border border-slate-700/60 rounded-xl p-2.5 text-xs">
+        <div class="flex items-center gap-2 text-slate-400 font-bold mb-1">
+          <i data-lucide="terminal" class="w-3.5 h-3.5 text-amber-400"></i>
+          <span>실시간 경기 로그</span>
+        </div>
+        <div id="duel-logs-list" class="space-y-0.5 max-h-20 overflow-y-auto font-mono text-slate-300"></div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ================= 모달 팝업들 ================= -->
+
+  <!-- 0. 5장 덱 지급 및 확인 모달 (라운드 시작 시 카드 지급 연출) -->
+  <div id="modal-deal-cards" class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-center justify-center p-3 sm:p-4 hidden">
+    <div class="bg-slate-900 border border-amber-500/50 rounded-2xl sm:rounded-3xl max-w-2xl w-full p-4 sm:p-6 text-center shadow-2xl relative overflow-hidden">
+      <!-- 배경 글로우 -->
+      <div class="absolute -top-16 -left-16 w-44 h-44 bg-amber-500/15 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute -bottom-16 -right-16 w-44 h-44 bg-indigo-500/15 rounded-full blur-3xl pointer-events-none"></div>
+
+      <div class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[11px] sm:text-xs font-black tracking-wider uppercase font-cinzel mb-2">
+        <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-400"></i>
+        <span id="deal-round-title">ROUND 1 카드 덱 지급</span>
+      </div>
+
+      <h3 class="text-xl sm:text-2xl font-black text-white">🎴 5장의 카드가 지급되었습니다!</h3>
+      <p class="text-xs text-slate-400 mt-1 mb-4">이번 라운드에 사용할 나만의 5장 덱입니다. 카드를 확인하세요!</p>
+
+      <!-- 5장 카드 순차 애니메이션 덱 컨테이너 -->
+      <div id="deal-cards-deck-container" class="deal-deck-row flex justify-center items-center gap-1.5 sm:gap-3 py-2 min-h-[120px] sm:min-h-[170px] overflow-x-auto">
+        <!-- 동적 5장 카드 렌더링 -->
+      </div>
+
+      <!-- 룰 설명 카드 -->
+      <div class="mt-4 p-3 rounded-xl bg-slate-950/80 border border-slate-800 text-[11px] sm:text-xs text-slate-300 space-y-1 text-left">
+        <div class="flex items-center gap-1.5 text-amber-400 font-bold mb-0.5">
+          <i data-lucide="info" class="w-3.5 h-3.5 flex-shrink-0"></i>
+          <span>라운드 규칙 안내</span>
+        </div>
+        <p>• 기본 베팅금 <strong>10골드</strong>를 팟에 올리며, <strong>1번째 카드</strong>는 상대에게 바로 공개됩니다.</p>
+        <p>• 나머지 4장의 비공개 카드는 <strong>베팅(Raise)이나 콜(Call)</strong>을 할 때마다 1장씩 선택하여 공개합니다.</p>
+      </div>
+
+      <!-- 확인 버튼 -->
+      <div class="mt-5 flex justify-center">
+        <button id="btn-confirm-deal" class="w-full sm:w-auto px-8 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-slate-950 font-black text-xs sm:text-sm shadow-xl shadow-amber-500/25 transition transform active:scale-95 flex items-center justify-center gap-2">
+          <i data-lucide="check-circle-2" class="w-4 h-4"></i>
+          <span>패 확인 완료 & 게임 시작 (<span id="deal-countdown-text">4</span>초)</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 1. 카드 공개(Reveal) 선택 팝업 모달 -->
+  <div id="modal-reveal-card" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-lg w-full p-6 text-center shadow-2xl">
+      <div class="w-12 h-12 rounded-2xl bg-amber-500/20 text-amber-400 mx-auto flex items-center justify-center mb-3">
+        <i data-lucide="eye" class="w-6 h-6"></i>
+      </div>
+      <h3 class="text-lg font-black text-white">공개할 카드를 선택하세요</h3>
+      <p class="text-xs text-slate-400 mt-1 mb-4">규칙에 따라 베팅/콜 시 비공개 카드 중 1장을 상대에게 공개해야 합니다.</p>
+      
+      <!-- 선택 가능한 비공개 카드 목록 -->
+      <div id="reveal-card-options" class="flex flex-wrap justify-center items-center gap-2.5 sm:gap-4 my-4 max-w-full"></div>
+
+      <div class="flex justify-end gap-2 mt-4">
+        <button id="btn-cancel-reveal" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-400 transition">취소</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. 친선전 (쇼다운) 결전 모달 -->
+  <div id="modal-showdown" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-3 sm:p-4 hidden">
+    <div class="showdown-modal-box bg-slate-900 border border-amber-500/40 rounded-2xl sm:rounded-3xl max-w-4xl lg:max-w-5xl w-full p-4 sm:p-6 text-center shadow-2xl relative max-h-[92vh] overflow-y-auto">
+      <div class="text-[10px] sm:text-xs font-black tracking-widest text-amber-400 uppercase font-cinzel">SHOWDOWN ARENA</div>
+      <h3 class="text-xl sm:text-2xl font-black text-white mt-0.5">⚔️ 5장 덱 공개 & 친선전 진행</h3>
+      <p class="text-[11px] sm:text-xs text-slate-400 mt-0.5 mb-3">양 선수의 모든 패가 공개되었습니다. 클래시 로얄 친선전 진행 후 승자를 판정하세요!</p>
+
+      <!-- 친선전 메인 대결 영역: 좌측(양측 5장 카드 대결) & 우측(걸린 판돈 대형 사이드 보드) -->
+      <div class="flex flex-col md:flex-row items-stretch gap-3 sm:gap-4 my-3 text-left">
+        <!-- 좌측: 양측 5장 카드 대결 (세로 2단 대치 구조) -->
+        <div class="flex-1 space-y-3 min-w-0">
+          <!-- 선수 1 카드 영역 -->
+          <div class="bg-slate-800/80 p-3 sm:p-4 rounded-2xl border border-amber-500/40 shadow-lg">
+            <div class="flex items-center justify-between mb-2.5 px-1 sm:px-2">
+              <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-amber-400 shadow-sm shadow-amber-400"></span>
+                <span id="showdown-p1-name" class="font-black text-sm sm:text-base text-amber-300 truncate max-w-[180px] sm:max-w-[240px]">선수 1</span>
+              </div>
+              <div class="flex items-center gap-1 text-xs font-bold px-2.5 py-0.5 rounded-full bg-amber-950/60 border border-amber-500/40 text-amber-300">
+                <span class="text-slate-400 text-[11px]">투입:</span>
+                <span id="showdown-p1-bet-val" class="font-black text-amber-400 font-cinzel">0 G</span>
+              </div>
+            </div>
+            <div id="showdown-p1-cards" class="showdown-deck-row flex justify-center items-center gap-1.5 sm:gap-2.5 flex-nowrap overflow-x-auto py-1"></div>
+          </div>
+
+          <!-- VS 대치 디바이더 배지 -->
+          <div class="flex items-center justify-center -my-2 relative z-10">
+            <div class="showdown-vs-badge flex items-center gap-2 px-3.5 py-1 rounded-full bg-slate-950 border border-amber-500/50 shadow-md">
+              <i data-lucide="swords" class="w-3.5 h-3.5 text-amber-400"></i>
+              <span class="text-[11px] font-black text-slate-300 font-cinzel tracking-wider">VS</span>
+              <span class="text-slate-600 text-xs">|</span>
+              <div class="flex items-center gap-1 text-xs font-black text-amber-300">
+                <i data-lucide="coins" class="w-3.5 h-3.5 text-amber-400"></i>
+                <span id="showdown-vs-pot-val">0 G</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 선수 2 카드 영역 -->
+          <div class="bg-slate-800/80 p-3 sm:p-4 rounded-2xl border border-cyan-500/40 shadow-lg">
+            <div class="flex items-center justify-between mb-2.5 px-1 sm:px-2">
+              <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-cyan-400 shadow-sm shadow-cyan-400"></span>
+                <span id="showdown-p2-name" class="font-black text-sm sm:text-base text-cyan-300 truncate max-w-[180px] sm:max-w-[240px]">선수 2</span>
+              </div>
+              <div class="flex items-center gap-1 text-xs font-bold px-2.5 py-0.5 rounded-full bg-cyan-950/60 border border-cyan-500/40 text-cyan-300">
+                <span class="text-slate-400 text-[11px]">투입:</span>
+                <span id="showdown-p2-bet-val" class="font-black text-cyan-400 font-cinzel">0 G</span>
+              </div>
+            </div>
+            <div id="showdown-p2-cards" class="showdown-deck-row flex justify-center items-center gap-1.5 sm:gap-2.5 flex-nowrap overflow-x-auto py-1"></div>
+          </div>
+        </div>
+
+        <!-- 우측: 걸린 판돈 전용 대형 사이드 보드 (옆에 크게 따로 표시) -->
+        <div class="showdown-side-pot-board w-full md:w-56 lg:w-64 flex-shrink-0 p-4 sm:p-5 flex flex-col justify-between shadow-xl relative overflow-hidden text-center">
+          <!-- 배경 금빛 펄스 글로우 -->
+          <div class="absolute -top-10 -right-10 w-28 h-28 bg-amber-500/15 rounded-full blur-2xl pointer-events-none"></div>
+          <div class="absolute -bottom-10 -left-10 w-28 h-28 bg-amber-500/15 rounded-full blur-2xl pointer-events-none"></div>
+
+          <div class="relative z-10 space-y-3">
+            <!-- 판돈 헤더 뱃지 -->
+            <div class="inline-flex items-center justify-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/20 border border-amber-500/50 text-amber-300 text-xs font-black tracking-wider uppercase font-cinzel">
+              <i data-lucide="trophy" class="w-3.5 h-3.5 text-amber-400"></i>
+              <span>걸린 총 판돈</span>
+            </div>
+
+            <!-- 거대한 판돈 표시 박스 (크게 따로 표시) -->
+            <div class="py-3 px-2 sm:px-3 rounded-2xl bg-slate-950/90 border border-amber-500/50 shadow-inner my-1">
+              <div class="text-[11px] text-amber-400/80 font-bold uppercase tracking-wider mb-1">TOTAL POT</div>
+              <div class="flex items-center justify-center gap-2">
+                <i data-lucide="coins" class="w-7 h-7 sm:w-8 sm:h-8 text-amber-400 filter drop-shadow-[0_0_8px_rgba(245,158,11,0.8)]"></i>
+                <span id="showdown-total-pot" class="text-3xl sm:text-4xl lg:text-5xl font-black text-amber-300 font-cinzel tracking-tight drop-shadow-[0_2px_12px_rgba(245,158,11,0.6)]">
+                  0 G
+                </span>
+              </div>
+              <div class="mt-1.5 inline-block px-2.5 py-0.5 rounded-full bg-amber-500/15 text-[10px] sm:text-[11px] text-amber-300 font-bold">
+                친선전 승자 독식 전액 지급
+              </div>
+            </div>
+
+            <!-- 세부 투입 내역 카드 -->
+            <div class="space-y-1.5 text-xs text-left">
+              <div class="flex items-center justify-between p-2 rounded-xl bg-slate-800/70 border border-amber-500/30">
+                <div class="flex items-center gap-1.5 min-w-0">
+                  <span class="w-2 h-2 rounded-full bg-amber-400 flex-shrink-0"></span>
+                  <span class="text-slate-300 font-bold truncate max-w-[95px] sm:max-w-[110px]" id="showdown-side-p1-name">선수 1</span>
+                </div>
+                <span class="text-amber-400 font-black font-cinzel flex-shrink-0" id="showdown-side-p1-bet">0 G</span>
+              </div>
+              <div class="flex items-center justify-between p-2 rounded-xl bg-slate-800/70 border border-cyan-500/30">
+                <div class="flex items-center gap-1.5 min-w-0">
+                  <span class="w-2 h-2 rounded-full bg-cyan-400 flex-shrink-0"></span>
+                  <span class="text-slate-300 font-bold truncate max-w-[95px] sm:max-w-[110px]" id="showdown-side-p2-name">선수 2</span>
+                </div>
+                <span class="text-cyan-400 font-black font-cinzel flex-shrink-0" id="showdown-side-p2-bet">0 G</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 하단 보너스 안내 -->
+          <div class="relative z-10 mt-3 pt-2.5 border-t border-amber-500/30 text-[11px] text-slate-400 font-semibold">
+            <span>승리 확정 시</span>
+            <span class="text-amber-300 font-black mx-1 font-cinzel text-xs" id="showdown-side-reward">+0 G</span>
+            <span>지급</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 배틀 시뮬레이션 로그창 (선택 시 열림) -->
+      <div id="battle-sim-log-box" class="bg-slate-950/80 p-3 rounded-xl border border-slate-800 text-left font-mono text-xs text-slate-300 space-y-1 my-3 max-h-36 overflow-y-auto hidden"></div>
+
+      <!-- 친선전 승자 확정 축하 배너 (실시간 공유) -->
+      <div id="showdown-winner-banner" class="hidden my-2.5 py-3 px-4 rounded-2xl bg-gradient-to-r from-amber-500/20 via-amber-400/30 to-amber-500/20 border-2 border-amber-400/80 text-center shadow-lg shadow-amber-500/20">
+        <div class="flex items-center justify-center gap-2 text-amber-300 font-black text-sm sm:text-base font-cinzel">
+          <i data-lucide="trophy" class="w-5 h-5 text-amber-400 animate-bounce"></i>
+          <span id="showdown-winner-text">선수 1 친선전 승리! (+200G 획득)</span>
+        </div>
+      </div>
+
+      <!-- 결전 판정 버튼 그룹 (호스트/방장 심판 전용) -->
+      <div id="showdown-referee-controls" class="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3 pt-2">
+        <button id="btn-win-p1" class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs transition active:scale-95 flex items-center justify-center gap-2">
+          <span id="btn-win-p1-label">선수 1 승리 확정</span>
+        </button>
+        <button id="btn-win-p2" class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black text-xs transition active:scale-95 flex items-center justify-center gap-2">
+          <span id="btn-win-p2-label">선수 2 승리 확정</span>
+        </button>
+      </div>
+
+      <!-- 시청자/참가자 대기 안내 (심판 판정 대기 & 대진표 복귀 버튼) -->
+      <div id="showdown-spectator-notice" class="hidden text-center py-2.5 px-3 sm:px-4 bg-slate-950/70 border border-slate-800 rounded-xl my-2">
+        <div class="flex items-center justify-between gap-2 flex-wrap">
+          <p class="text-xs text-amber-300 font-bold flex items-center gap-2 text-left">
+            <i data-lucide="crown" class="w-4 h-4 text-amber-400 animate-pulse flex-shrink-0"></i>
+            <span>호스트(방장)가 친선전 결과를 확인하고 승자를 판정하고 있습니다...</span>
+          </p>
+          <button id="btn-spectator-leave-showdown" class="px-3 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-[11px] font-bold text-slate-200 border border-slate-700 transition active:scale-95 flex items-center gap-1.5 flex-shrink-0 ml-auto">
+            <i data-lucide="arrow-left" class="w-3.5 h-3.5 text-amber-400"></i>
+            <span>대진표 보기</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2-1. 매치 승리 & 진출 축하 글로벌 모달 (논블로킹 & 초고속 실시간 진행) -->
+  <div id="modal-match-winner" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden transition-opacity duration-300 opacity-0 pointer-events-none">
+    <div class="bg-gradient-to-b from-amber-950/90 via-slate-900/95 to-slate-950 border-2 border-amber-500 rounded-3xl max-w-md w-full p-6 sm:p-8 text-center shadow-2xl">
+      <div class="w-16 h-16 rounded-full bg-amber-500/20 border-2 border-amber-400 mx-auto flex items-center justify-center mb-3 shadow-[0_0_25px_rgba(245,158,11,0.6)]">
+        <i data-lucide="trophy" class="w-8 h-8 text-amber-400 animate-bounce"></i>
+      </div>
+      <div class="text-xs font-black tracking-widest text-amber-400 uppercase font-cinzel">MATCH VICTORY</div>
+      <h3 id="match-winner-title" class="text-2xl sm:text-3xl font-black text-white mt-1">선수 승리!</h3>
+      <p id="match-winner-subtitle" class="text-xs sm:text-sm text-slate-300 mt-2 mb-4">상대방의 골드를 모두 획득하고 다음 라운드로 진출합니다!</p>
+      <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-300 text-xs font-bold font-cinzel animate-pulse">
+        <i data-lucide="arrow-right" class="w-4 h-4 text-amber-400"></i>
+        <span>대진표로 이동 중...</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. 게임 규칙 모달 -->
+  <div id="modal-rules" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-slate-900 border border-slate-700 rounded-3xl max-w-xl w-full p-6 sm:p-8 shadow-2xl max-h-[85vh] overflow-y-auto">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-800 mb-4">
+        <div class="flex items-center gap-2">
+          <i data-lucide="book-open" class="w-5 h-5 text-amber-400"></i>
+          <h3 class="text-lg font-black text-white">무력 포커 공식 규칙</h3>
+        </div>
+        <button id="btn-close-rules" class="text-slate-400 hover:text-white">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <div class="space-y-4 text-xs sm:text-sm text-slate-300 leading-relaxed">
+        <div class="p-3 rounded-xl bg-slate-800/80 border border-slate-700/60">
+          <h4 class="font-bold text-amber-400 mb-1">1. 참가 인원 및 토너먼트</h4>
+          <p>총 8명의 참가자가 1대1 싱글 엘리미네이션 토너먼트(8강 ➔ 4강 ➔ 결승)를 진행합니다.</p>
+        </div>
+        <div class="p-3 rounded-xl bg-slate-800/80 border border-slate-700/60">
+          <h4 class="font-bold text-amber-400 mb-1">2. 시작 자원 및 기본 베팅</h4>
+          <p>첫 게임에 각자 <strong>100골드</strong>와 <strong>5장의 카드</strong>를 배분받습니다. 매 라운드 시작 시 기본 베팅금 <strong>10골드</strong>를 테이블 팟에 올리고, 각자 1장씩 패를 공개하고 시작합니다.</p>
+        </div>
+        <div class="p-3 rounded-xl bg-slate-800/80 border border-slate-700/60">
+          <h4 class="font-bold text-amber-400 mb-1">3. 베팅 / 콜 / 폴드 룰</h4>
+          <ul class="list-disc list-inside space-y-1 text-slate-400 mt-1">
+            <li><strong>베팅 (Raise):</strong> 10단위로만 가능하며, <em>직전 상대의 베팅금보다 높게만</em> 가능합니다. 베팅할 때마다 본인의 비공개 카드를 1장씩 공개해야 합니다.</li>
+            <li><strong>콜 (Call):</strong> 상대 베팅금을 맞추며, <em>베팅금이 모자라도 올인 콜이 가능</em>합니다. 비공개 카드 1장을 공개하며 모든 패(5장)가 공개되고 친선전으로 돌입합니다.</li>
+            <li><strong>폴드 (Fold):</strong> 베팅을 포기하며, 테이블에 쌓인 모든 베팅금(기본 베팅 포함)은 상대가 모두 획득합니다.</li>
+          </ul>
+        </div>
+        <div class="p-3 rounded-xl bg-slate-950/90 border border-amber-500/30 font-mono text-[11px] text-slate-300 space-y-1">
+          <h4 class="font-bold text-amber-400 mb-1 font-sans">💡 공식 베팅 진행 예시</h4>
+          <p>• 시작(각 100G) ➔ A(100→90G): 기본 10G "삼총사" / B(100→90G): 기본 10G "해골 병사"</p>
+          <p>• A(90→80G): "10골드, 나무꾼" ➔ B(90→70G): "20골드, 박쥐" ➔ A(80→40G): "40골드, 통나무"</p>
+          <p class="text-sky-300">1) B(70→30G): "콜, 발키리"(40골드) ➔ 서로의 5장 패 전체 공개 후 친선전 진행 (승자가 총 130G 팟 획득)</p>
+          <p class="text-rose-300">2) B(70G): "폴드" ➔ A가 자신의 베팅금(60G)을 돌려받고 B의 베팅금(기본10+베팅20=30G)을 획득 (40→130G)</p>
+        </div>
+        <div class="p-3 rounded-xl bg-slate-800/80 border border-slate-700/60">
+          <h4 class="font-bold text-amber-400 mb-1">4. 친선전 & 골드 탈락</h4>
+          <p>콜이 성립되면 5장 덱으로 친선전을 진행(또는 웹 자동 대결)하여 이긴 쪽이 팟의 베팅금을 모두 획득합니다. <strong>보유 골드가 0이 되면 최종 탈락</strong>하며 승자가 다음 토너먼트 라운드로 진출합니다.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3-1. 참가자 대진 자리 배치 및 퇴장 관리 모달 -->
+  <div id="modal-manage-slots" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 hidden">
+    <div class="bg-slate-900 border border-slate-700 rounded-3xl max-w-xl w-full p-4 sm:p-6 shadow-2xl flex flex-col max-h-[90vh]">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-800 mb-2 flex-shrink-0">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-lg bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 flex-shrink-0">
+            <i data-lucide="user-cog" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h3 class="text-sm sm:text-base font-black text-white">참가자 대진 자리 배치 & 퇴장 관리</h3>
+            <p class="text-[11px] text-slate-400">참가자/봇의 자리를 바꾸거나 불량 참가자를 퇴장시킬 수 있습니다.</p>
+          </div>
+        </div>
+        <button id="btn-close-manage-slots" class="text-slate-400 hover:text-white p-1">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- 슬롯 1~8 리스트 컨테이너 -->
+      <div id="manage-slots-list" class="flex-1 overflow-y-auto space-y-2 pr-1 my-2 min-h-[220px]">
+        <!-- JS renderManageSlotsModal에서 동적 생성 -->
+      </div>
+
+      <div class="pt-3 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400 flex-shrink-0">
+        <span class="text-[11px] text-amber-400/90 font-medium">💡 자리를 변경하면 전체 참가자 화면에 즉시 동기화됩니다.</span>
+        <button id="btn-done-manage-slots" class="px-4 py-1.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black rounded-xl transition text-xs shadow-sm">
+          닫기
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. Firebase 설정 모달 -->
+  <div id="modal-firebase" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-slate-900 border border-slate-700 rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-800 mb-4">
+        <div class="flex items-center gap-2">
+          <i data-lucide="database" class="w-5 h-5 text-sky-400"></i>
+          <h3 class="text-lg font-black text-white">Firebase Realtime Database 설정</h3>
+        </div>
+        <button id="btn-close-firebase" class="text-slate-400 hover:text-white">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <p class="text-xs text-slate-400 mb-4">
+        Firebase 콘솔에서 발급받은 웹 앱 설정(Config) 객체를 붙여넣거나 각 항목을 입력하세요. 설정값은 브라우저에 안전하게 저장됩니다.
+      </p>
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="block text-slate-300 font-bold mb-1">API Key</label>
+          <input type="text" id="fb-api-key" placeholder="AIzaSy..." class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-xl font-mono text-white">
+        </div>
+        <div>
+          <label class="block text-slate-300 font-bold mb-1">Database URL (RTDB)</label>
+          <input type="text" id="fb-db-url" placeholder="https://your-app-default-rtdb.firebaseio.com" class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-xl font-mono text-white">
+        </div>
+        <div>
+          <label class="block text-slate-300 font-bold mb-1">Project ID</label>
+          <input type="text" id="fb-project-id" placeholder="your-project-id" class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-xl font-mono text-white">
+        </div>
+      </div>
+      <div class="flex items-center justify-between gap-3 mt-6">
+        <button id="btn-reset-firebase" class="text-xs text-red-400 hover:underline">설정 초기화</button>
+        <div class="flex gap-2">
+          <button id="btn-save-firebase" class="px-4 py-2 rounded-xl bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold text-xs transition">저장 및 연결</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. 클래시 로얄 유닛 도감 모달 -->
+  <div id="modal-card-list" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-2 sm:p-4 hidden">
+    <div class="bg-slate-900 border border-slate-700/80 rounded-2xl sm:rounded-3xl max-w-5xl w-full h-[90vh] max-h-[850px] flex flex-col shadow-2xl overflow-hidden">
+      <!-- 모달 상단 헤더 -->
+      <div class="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-800 bg-slate-900/95 flex-shrink-0">
+        <div class="flex items-center gap-2.5 sm:gap-3">
+          <div class="p-2 sm:p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400">
+            <i data-lucide="layers" class="w-5 h-5 sm:w-6 sm:h-6"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h3 class="text-base sm:text-lg font-black text-white">클래시 로얄 유닛 도감</h3>
+              <span id="card-list-count" class="text-xs px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 font-mono font-bold border border-amber-500/30">119 / 119</span>
+            </div>
+            <p class="text-[11px] text-slate-400 hidden sm:block">무력 포커에서 사용되는 119종의 정통 전투 유닛 · 스펠 · 건물을 확인하세요</p>
+          </div>
+        </div>
+        <button id="btn-close-card-list" class="p-2 text-slate-400 hover:text-white rounded-xl hover:bg-slate-800 transition" title="닫기">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- 검색 및 필터 툴바 -->
+      <div class="px-4 sm:px-6 py-2.5 sm:py-3 bg-slate-950/70 border-b border-slate-800 flex-shrink-0 flex flex-col sm:flex-row gap-2.5 items-stretch sm:items-center justify-between">
+        <!-- 검색창 -->
+        <div class="relative flex-1 max-w-md">
+          <i data-lucide="search" class="w-4 h-4 absolute left-3 top-2.5 sm:top-3 text-slate-400"></i>
+          <input type="text" id="card-search-input" placeholder="유닛 이름 또는 영문 ID 검색 (예: 기사, 호그, pekka)"
+                 class="w-full pl-9 pr-8 py-1.5 sm:py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 transition">
+          <button id="btn-clear-search" class="absolute right-2.5 top-2 sm:top-2.5 text-slate-500 hover:text-slate-300 hidden" title="검색어 지우기">
+            <i data-lucide="x" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
+
+        <!-- 희귀도 필터 탭 -->
+        <div class="flex items-center gap-1 sm:gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none" id="card-rarity-filters">
+          <button data-rarity="all" class="card-filter-btn active px-2.5 py-1 sm:py-1.5 rounded-lg text-xs font-bold transition bg-amber-500 text-slate-950 shadow-sm whitespace-nowrap">전체</button>
+          <button data-rarity="common" class="card-filter-btn px-2.5 py-1 sm:py-1.5 rounded-lg text-xs font-semibold transition text-slate-400 hover:text-white bg-slate-800/80 hover:bg-slate-800 whitespace-nowrap">일반</button>
+          <button data-rarity="rare" class="card-filter-btn px-2.5 py-1 sm:py-1.5 rounded-lg text-xs font-semibold transition text-amber-400 hover:text-amber-300 bg-slate-800/80 hover:bg-slate-800 whitespace-nowrap">희귀</button>
+          <button data-rarity="epic" class="card-filter-btn px-2.5 py-1 sm:py-1.5 rounded-lg text-xs font-semibold transition text-purple-400 hover:text-purple-300 bg-slate-800/80 hover:bg-slate-800 whitespace-nowrap">영웅</button>
+          <button data-rarity="legendary" class="card-filter-btn px-2.5 py-1 sm:py-1.5 rounded-lg text-xs font-semibold transition text-sky-400 hover:text-sky-300 bg-slate-800/80 hover:bg-slate-800 whitespace-nowrap">전설</button>
+          <button data-rarity="champion" class="card-filter-btn px-2.5 py-1 sm:py-1.5 rounded-lg text-xs font-semibold transition text-yellow-300 hover:text-yellow-200 bg-slate-800/80 hover:bg-slate-800 whitespace-nowrap">챔피언</button>
+        </div>
+      </div>
+
+      <!-- 카드 그리드 영역 (스크롤) -->
+      <div class="flex-1 overflow-y-auto p-3 sm:p-6" id="card-list-scroll">
+        <div id="card-list-grid" class="grid grid-cols-3 xs:grid-cols-4 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-7 gap-2.5 sm:gap-4 justify-items-center">
+          <!-- JS 동적 렌더링 -->
+        </div>
+        <div id="card-list-empty" class="hidden flex flex-col items-center justify-center py-16 text-center text-slate-400">
+          <i data-lucide="search-x" class="w-12 h-12 text-slate-600 mb-3"></i>
+          <p class="text-sm font-bold text-slate-300">검색된 유닛이 없습니다</p>
+          <p class="text-xs text-slate-500 mt-1">다른 이름이나 희귀도로 검색해 보세요.</p>
+        </div>
+      </div>
+
+      <!-- 모달 하단 요약 바 -->
+      <div class="px-4 sm:px-6 py-2.5 bg-slate-950/80 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400 flex-shrink-0">
+        <div class="flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+          <span>타워 유닛 4종 제외 · 배틀 덱 119종 완전 지원</span>
+        </div>
+        <div class="text-[11px] text-slate-500 hidden sm:block">
+          카드를 클릭하면 상세 능력치와 설명을 확인할 수 있습니다.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. 유닛 상세 정보 팝업 모달 -->
+  <div id="modal-card-detail" class="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-slate-900 border border-slate-700 rounded-3xl max-w-md w-full p-6 shadow-2xl">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-800 mb-4">
+        <div class="flex items-center gap-2">
+          <i data-lucide="info" class="w-5 h-5 text-amber-400"></i>
+          <h3 class="text-lg font-black text-white" id="card-detail-title">유닛 상세 정보</h3>
+        </div>
+        <button id="btn-close-card-detail" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="flex flex-col sm:flex-row items-center gap-5 my-2">
+        <!-- 대형 카드 프리뷰 -->
+        <div id="card-detail-preview-container" class="card-detail-large-preview flex-shrink-0">
+          <!-- 동적 카드 렌더링 -->
+        </div>
+
+        <!-- 스펙 및 정보 -->
+        <div class="flex-1 w-full space-y-3">
+          <div>
+            <div class="text-xs font-mono text-slate-500" id="card-detail-id">knight</div>
+            <div class="text-xl font-black text-white" id="card-detail-name">기사</div>
+          </div>
+
+          <div class="flex flex-wrap gap-1.5" id="card-detail-tags">
+            <!-- 배지 동적 삽입 -->
+          </div>
+
+          <div class="p-3 bg-slate-950/70 border border-slate-800 rounded-xl">
+            <div class="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">인게임 설명</div>
+            <p class="text-xs text-slate-300 leading-relaxed" id="card-detail-desc"></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-5 pt-3 border-t border-slate-800 flex justify-end">
+        <button id="btn-confirm-card-detail" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold rounded-xl transition">
+          닫기
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 메인 애플리케이션 JS 모듈 로드 -->
+  <script type="module" src="js/app.js?v=20261017_28"></script>
+</body>
+</html>

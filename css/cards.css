@@ -1,0 +1,787 @@
+/* cards.css - 클래시 로얄 스타일 정통 카드 렌더링 및 모바일 완전 최적화 */
+
+/* 기본 모바일 (스마트폰 360px ~ 640px): 5장 패가 화면 밖으로 넘치지 않고 한눈에 쏙 들어오는 황금 비율 */
+.poker-card {
+  position: relative;
+  width: 62px;
+  height: 94px;
+  border-radius: 8px;
+  perspective: 1000px;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease, filter 0.2s ease;
+  user-select: none;
+  cursor: pointer;
+  flex-shrink: 0;
+  touch-action: manipulation;
+  filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.75));
+}
+
+/* 태블릿 (640px 이상) */
+@media (min-width: 640px) {
+  .poker-card {
+    width: 95px;
+    height: 145px;
+    border-radius: 12px;
+  }
+}
+
+/* 데스크톱 (1024px 이상) */
+@media (min-width: 1024px) {
+  .poker-card {
+    width: 125px;
+    height: 190px;
+    border-radius: 14px;
+  }
+}
+
+.poker-card:hover:not(.unselectable), .poker-card:active:not(.unselectable) {
+  transform: translateY(-6px) scale(1.05);
+  z-index: 15;
+}
+
+.poker-card.selected {
+  transform: translateY(-8px) scale(1.08);
+  box-shadow: 0 0 18px rgba(245, 158, 11, 0.95), 0 0 35px rgba(245, 158, 11, 0.6);
+  border: 2px solid #fde047;
+  z-index: 25;
+}
+
+.card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-style: preserve-3d;
+}
+
+.poker-card.flipped .card-inner {
+  transform: rotateY(180deg);
+}
+
+.card-front, .card-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transform: translate3d(0, 0, 0);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* 카드 뒷면 (클래시 로얄 스타일 정통 카드 뒷면) */
+.card-back {
+  background: radial-gradient(ellipse at center, #1e1b4b 0%, #0f172a 65%, #020617 100%);
+  border-style: solid;
+  border-width: 3.5px;
+  border-top-color: #60a5fa;
+  border-left-color: #3b82f6;
+  border-right-color: #2563eb;
+  border-bottom-color: #1d4ed8;
+  box-shadow: 
+    inset 0 1.5px 2px rgba(191, 219, 254, 0.7),
+    inset 0 -2.5px 4px rgba(15, 23, 42, 0.95),
+    inset 0 0 0 1.5px rgba(30, 58, 138, 0.8),
+    0 6px 16px rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (min-width: 640px) {
+  .card-back {
+    border-width: 4.5px;
+    box-shadow: 
+      inset 0 2px 3px rgba(191, 219, 254, 0.8),
+      inset 0 -3px 5px rgba(15, 23, 42, 0.95),
+      inset 0 0 0 2px rgba(30, 58, 138, 0.9),
+      0 10px 24px rgba(0, 0, 0, 0.9);
+  }
+}
+
+.card-back-pattern {
+  width: 86%;
+  height: 90%;
+  border: 1.5px solid rgba(147, 197, 253, 0.4);
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.25) 0%, transparent 80%);
+  box-shadow: inset 0 0 10px rgba(59, 130, 246, 0.3);
+}
+
+/* 카드 앞면 (3D 테두리 & 등급별 비주얼) */
+.card-front {
+  transform: rotateY(180deg);
+  background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+  position: relative;
+  border-style: solid;
+  border-width: 3.5px;
+  box-sizing: border-box;
+}
+
+@media (min-width: 640px) {
+  .card-front {
+    border-width: 4.5px;
+  }
+}
+
+/* 1. 일반 (Common): 두터운 주조 강철 실버 메탈릭 프레임 */
+.card-front.rarity-common, .reveal-choice-card.rarity-common {
+  border-top-color: #cbd5e1;
+  border-left-color: #94a3b8;
+  border-right-color: #64748b;
+  border-bottom-color: #475569;
+  box-shadow: 
+    inset 0 1.5px 2px rgba(255, 255, 255, 0.8),
+    inset 0 -2.5px 4px rgba(0, 0, 0, 0.95),
+    inset 0 0 0 1.5px #1e293b,
+    0 8px 18px rgba(0, 0, 0, 0.8);
+}
+
+/* 2. 희귀 (Rare): 찬란한 황금/브론즈 입체 조각 프레임 */
+.card-front.rarity-rare, .reveal-choice-card.rarity-rare {
+  border-top-color: #fef08a;
+  border-left-color: #f59e0b;
+  border-right-color: #d97706;
+  border-bottom-color: #b45309;
+  box-shadow: 
+    inset 0 2px 3px rgba(254, 240, 138, 0.95),
+    inset 0 -3px 4px rgba(120, 53, 15, 0.98),
+    inset 0 0 0 1.5px #451a03,
+    0 8px 22px rgba(0, 0, 0, 0.85),
+    0 0 16px rgba(245, 158, 11, 0.45);
+}
+
+/* 3. 영웅 (Epic): 고대 심연의 자수정 보석 입체 프레임 */
+.card-front.rarity-epic, .reveal-choice-card.rarity-epic {
+  border-top-color: #f3e8ff;
+  border-left-color: #c084fc;
+  border-right-color: #9333ea;
+  border-bottom-color: #6b21a8;
+  box-shadow: 
+    inset 0 2px 3px rgba(243, 232, 255, 0.95),
+    inset 0 -3px 4px rgba(88, 28, 135, 0.98),
+    inset 0 0 0 1.5px #3b0764,
+    0 8px 24px rgba(0, 0, 0, 0.85),
+    0 0 20px rgba(168, 85, 247, 0.55);
+}
+
+/* 4. 전설 (Legendary): 영롱한 프리즘 크리스탈 홀로그램 프레임 */
+.card-front.rarity-legendary, .reveal-choice-card.rarity-legendary {
+  border-top-color: #e0f2fe;
+  border-left-color: #38bdf8;
+  border-right-color: #0284c7;
+  border-bottom-color: #0369a1;
+  box-shadow: 
+    inset 0 2.5px 3px rgba(255, 255, 255, 1),
+    inset 0 -3px 5px rgba(15, 23, 42, 0.95),
+    inset 0 0 0 2px #075985,
+    0 10px 28px rgba(0, 0, 0, 0.9),
+    0 0 24px rgba(56, 189, 248, 0.7);
+  animation: clashLegendaryPulse 3.5s infinite alternate ease-in-out;
+}
+
+@keyframes clashLegendaryPulse {
+  0% { 
+    border-top-color: #bae6fd;
+    border-left-color: #38bdf8;
+    border-right-color: #0284c7;
+    border-bottom-color: #0369a1;
+    box-shadow: inset 0 2px 3px #fff, inset 0 -3px 4px #000, 0 0 18px rgba(56, 189, 248, 0.75); 
+  }
+  50% { 
+    border-top-color: #fbcfe8;
+    border-left-color: #f472b6;
+    border-right-color: #db2777;
+    border-bottom-color: #9d174d;
+    box-shadow: inset 0 2px 3px #fff, inset 0 -3px 4px #000, 0 0 22px rgba(236, 72, 153, 0.8); 
+  }
+  100% { 
+    border-top-color: #fef08a;
+    border-left-color: #f59e0b;
+    border-right-color: #d97706;
+    border-bottom-color: #78350f;
+    box-shadow: inset 0 2px 3px #fff, inset 0 -3px 4px #000, 0 0 20px rgba(251, 191, 36, 0.8); 
+  }
+}
+
+/* 클래시 로얄 정통 엘릭서 및 무력 배지 (카드 시각 청결화를 위해 숨김) */
+.elixir-badge,
+.power-badge-cr {
+  display: none !important;
+}
+
+/* 카드 중앙 공식 원본 이미지 컨테이너 */
+.card-art-box {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3px 2px 0 2px;
+  overflow: hidden;
+  position: relative;
+  background: radial-gradient(ellipse at 50% 35%, rgba(51, 65, 85, 0.45) 0%, rgba(15, 23, 42, 0.85) 100%);
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.65);
+}
+
+@media (min-width: 640px) {
+  .card-art-box {
+    padding: 5px 3px 0 3px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .card-art-box {
+    padding: 6px 4px 0 4px;
+  }
+}
+
+.card-official-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.7));
+  transition: transform 0.2s ease;
+  user-drag: none;
+  -webkit-user-drag: none;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transform: translateZ(0);
+  image-rendering: -webkit-optimize-contrast;
+}
+
+/* 카드 하단 명판 리본 */
+.card-name-banner {
+  background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+  border-top: 1.5px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  padding: 2px 1px 3px 1px;
+  text-align: center;
+  z-index: 5;
+}
+
+@media (min-width: 640px) {
+  .card-name-banner {
+    padding: 3px 2px 5px 2px;
+  }
+}
+
+.card-title-text {
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+  font-size: 9.5px;
+  font-weight: 700;
+  color: #f8fafc;
+  letter-spacing: -0.2px;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.85);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (min-width: 640px) {
+  .card-title-text {
+    font-size: 11px;
+  }
+}
+
+.card-type-tag {
+  display: none;
+}
+
+@media (min-width: 640px) {
+  .card-type-tag {
+    display: block;
+    font-size: 8px;
+    font-weight: 700;
+    color: #94a3b8;
+    text-transform: uppercase;
+  }
+}
+
+/* 본인 비공개 확인용 피킹 배지 */
+.card-peeking::after {
+  content: '내 카드';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(15, 23, 42, 0.95);
+  color: #38bdf8;
+  font-size: 8px;
+  font-weight: 800;
+  text-align: center;
+  padding: 1px 0;
+  border-top: 1px solid #0284c7;
+  z-index: 20;
+}
+
+@media (min-width: 640px) {
+  .card-peeking::after {
+    content: '비공개 (내 카드)';
+    font-size: 9px;
+    padding: 2px 0;
+  }
+}
+
+/* ================= 공개할 카드 선택 모달 전용 카드 스타일 (3D 회전 없음, 100% 정면 선명) ================= */
+.reveal-choice-card {
+  width: 72px;
+  height: 108px;
+  border-radius: 10px;
+  background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+  border-width: 3.5px;
+  border-style: solid;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+  user-select: none;
+  cursor: pointer;
+  flex-shrink: 0;
+  touch-action: manipulation;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
+  filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.75));
+}
+
+@media (min-width: 640px) {
+  .reveal-choice-card {
+    width: 98px;
+    height: 148px;
+    border-radius: 12px;
+    border-width: 4.5px;
+  }
+}
+
+.reveal-choice-card:hover {
+  transform: translateY(-8px) scale(1.08);
+  box-shadow: 0 12px 28px rgba(245, 158, 11, 0.6), 0 0 20px rgba(245, 158, 11, 0.7);
+  border-color: #fde047 !important;
+  z-index: 20;
+}
+
+.reveal-choice-card:active {
+  transform: translateY(-2px) scale(0.98);
+}
+
+/* 쇼다운(친선전) 5장 카드 정밀 피팅 - 절대 겹치거나 넘치지 않는 완벽한 반응형 비율 */
+.showdown-deck-row {
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+.showdown-deck-row .poker-card {
+  width: 58px;
+  height: 88px;
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+
+@media (min-width: 480px) {
+  .showdown-deck-row .poker-card {
+    width: 72px;
+    height: 108px;
+    border-radius: 10px;
+  }
+}
+
+@media (min-width: 640px) and (max-width: 767px) {
+  .showdown-deck-row .poker-card {
+    width: 90px;
+    height: 135px;
+    border-radius: 12px;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .showdown-deck-row .poker-card {
+    width: 76px;
+    height: 114px;
+    border-radius: 10px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .showdown-deck-row .poker-card {
+    width: 102px;
+    height: 153px;
+    border-radius: 14px;
+  }
+}
+
+/* ================= 5장 덱 지급 모달 전용 카드 스타일 & 순차 딜링 애니메이션 ================= */
+.deal-deck-row {
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+.deal-deck-row .poker-card {
+  width: 60px;
+  height: 90px;
+  border-radius: 8px;
+  flex-shrink: 0;
+  cursor: default;
+}
+
+@media (min-width: 480px) {
+  .deal-deck-row .poker-card {
+    width: 76px;
+    height: 114px;
+    border-radius: 10px;
+  }
+}
+
+@media (min-width: 640px) {
+  .deal-deck-row .poker-card {
+    width: 96px;
+    height: 144px;
+    border-radius: 12px;
+  }
+}
+
+/* 덱 지급 카드 플립-인 애니메이션 */
+@keyframes dealCardIn {
+  0% {
+    transform: translateY(-50px) scale(0.3) rotate(-15deg);
+    opacity: 0;
+  }
+  60% {
+    transform: translateY(6px) scale(1.08) rotate(3deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(0) scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+.deal-anim-0 { animation: dealCardIn 0.5s cubic-bezier(0.2, 0.9, 0.3, 1.2) 0.05s backwards !important; }
+.deal-anim-1 { animation: dealCardIn 0.5s cubic-bezier(0.2, 0.9, 0.3, 1.2) 0.20s backwards !important; }
+.deal-anim-2 { animation: dealCardIn 0.5s cubic-bezier(0.2, 0.9, 0.3, 1.2) 0.35s backwards !important; }
+.deal-anim-3 { animation: dealCardIn 0.5s cubic-bezier(0.2, 0.9, 0.3, 1.2) 0.50s backwards !important; }
+.deal-anim-4 { animation: dealCardIn 0.5s cubic-bezier(0.2, 0.9, 0.3, 1.2) 0.65s backwards !important; }
+
+/* ================= 카드를 낼 때 (플레이어 자신)의 슬램 애니메이션 ================= */
+@keyframes cardPlaySlamMe {
+  0% {
+    transform: translateY(40px) scale(0.65) rotate(-6deg);
+    opacity: 0.5;
+    box-shadow: 0 0 40px rgba(245, 158, 11, 0.9);
+  }
+  45% {
+    transform: translateY(-28px) scale(1.22) rotate(2deg);
+    box-shadow: 0 0 50px rgba(245, 158, 11, 1), 0 0 80px rgba(245, 158, 11, 0.8);
+    z-index: 50;
+  }
+  75% {
+    transform: translateY(4px) scale(0.96) rotate(-1deg);
+  }
+  100% {
+    transform: translateY(0) scale(1) rotate(0deg);
+    box-shadow: 0 0 20px rgba(245, 158, 11, 0.6);
+  }
+}
+
+.card-just-played {
+  animation: cardPlaySlamMe 0.7s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards !important;
+  z-index: 40 !important;
+}
+
+/* ================= 카드를 낼 때 (상대방)의 슬램 애니메이션 ================= */
+@keyframes cardPlaySlamOpp {
+  0% {
+    transform: translateY(-40px) scale(0.65) rotate(6deg);
+    opacity: 0.5;
+    box-shadow: 0 0 40px rgba(56, 189, 248, 0.9);
+  }
+  45% {
+    transform: translateY(28px) scale(1.22) rotate(-2deg);
+    box-shadow: 0 0 50px rgba(56, 189, 248, 1), 0 0 80px rgba(56, 189, 248, 0.8);
+    z-index: 50;
+  }
+  75% {
+    transform: translateY(-4px) scale(0.96) rotate(1deg);
+  }
+  100% {
+    transform: translateY(0) scale(1) rotate(0deg);
+    box-shadow: 0 0 20px rgba(56, 189, 248, 0.6);
+  }
+}
+
+.opp-card-just-played {
+  animation: cardPlaySlamOpp 0.7s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards !important;
+  z-index: 40 !important;
+}
+
+/* ================= 손패 (Hand) & 테이블 보드 (Table Board) 분리 스타일 ================= */
+
+/* 테이블 필드 존 */
+.table-field-zone {
+  position: relative;
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.table-cards-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  min-height: 80px;
+  padding: 4px 8px;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.28);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.6);
+  transition: all 0.3s ease;
+}
+
+@media (min-width: 640px) {
+  .table-cards-container {
+    gap: 8px;
+    min-height: 110px;
+    padding: 6px 12px;
+    border-radius: 14px;
+  }
+}
+
+/* 테이블에 올라간 카드 스타일 */
+.table-card-item {
+  position: relative;
+  cursor: default;
+  filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.8));
+}
+
+.table-card-item .poker-card {
+  width: 56px;
+  height: 84px;
+  border-radius: 7px;
+}
+
+@media (min-width: 480px) {
+  .table-card-item .poker-card {
+    width: 66px;
+    height: 98px;
+    border-radius: 9px;
+  }
+}
+
+@media (min-width: 640px) {
+  .table-card-item .poker-card {
+    width: 78px;
+    height: 116px;
+    border-radius: 10px;
+  }
+}
+
+/* ================= 손패 (My Hand) 스타일 ================= */
+.hand-cards-container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  position: relative;
+  padding: 8px 10px 2px 10px;
+  min-height: 94px;
+}
+
+@media (min-width: 640px) {
+  .hand-cards-container {
+    padding: 12px 14px 4px 14px;
+    min-height: 130px;
+  }
+}
+
+.hand-card-wrapper {
+  position: relative;
+  margin: 0 -10px;
+  transition: transform 0.25s cubic-bezier(0.2, 0.9, 0.3, 1.2), z-index 0.15s ease, filter 0.25s ease;
+  transform-origin: bottom center;
+}
+
+@media (min-width: 640px) {
+  .hand-card-wrapper {
+    margin: 0 -14px;
+  }
+}
+
+.hand-card-wrapper .poker-card {
+  width: 64px;
+  height: 96px;
+  border-radius: 9px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.65);
+  cursor: pointer;
+}
+
+@media (min-width: 480px) {
+  .hand-card-wrapper .poker-card {
+    width: 74px;
+    height: 110px;
+    border-radius: 10px;
+  }
+}
+
+@media (min-width: 640px) {
+  .hand-card-wrapper .poker-card {
+    width: 88px;
+    height: 132px;
+    border-radius: 12px;
+  }
+}
+
+/* 손패 부채꼴 회전 각도 (4장 기준) */
+.hand-fan-4-0 { transform: rotate(-9deg) translateY(6px); z-index: 10; }
+.hand-fan-4-1 { transform: rotate(-3deg) translateY(1px); z-index: 11; }
+.hand-fan-4-2 { transform: rotate(3deg) translateY(1px); z-index: 12; }
+.hand-fan-4-3 { transform: rotate(9deg) translateY(6px); z-index: 13; }
+
+/* 3장 기준 */
+.hand-fan-3-0 { transform: rotate(-6deg) translateY(4px); z-index: 10; }
+.hand-fan-3-1 { transform: rotate(0deg) translateY(0px); z-index: 11; }
+.hand-fan-3-2 { transform: rotate(6deg) translateY(4px); z-index: 12; }
+
+/* 2장 기준 */
+.hand-fan-2-0 { transform: rotate(-4deg) translateY(2px); z-index: 10; }
+.hand-fan-2-1 { transform: rotate(4deg) translateY(2px); z-index: 11; }
+
+/* 1장 기준 */
+.hand-fan-1-0 { transform: rotate(0deg) translateY(0px); z-index: 10; }
+
+/* 손패 마우스 호버 / 터치 활성화 인터랙션 (손에서 위로 쑥 올라오는 효과!) */
+.hand-card-wrapper:hover,
+.hand-card-wrapper:active,
+.hand-card-wrapper.hand-card-selected {
+  transform: translateY(-22px) scale(1.15) rotate(0deg) !important;
+  z-index: 60 !important;
+  filter: drop-shadow(0 14px 24px rgba(0,0,0,0.9)) drop-shadow(0 0 16px rgba(245, 158, 11, 0.85));
+}
+
+.hand-card-wrapper.hand-card-selected .poker-card {
+  outline: 3px solid #fbbf24;
+}
+
+/* ================= 상대방 손패 (Opponent Hand - 뒷면 겹침) ================= */
+.opp-hand-cards {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  min-height: 48px;
+}
+
+.opp-hand-wrapper {
+  position: relative;
+  margin: 0 -8px;
+  transform-origin: top center;
+  transition: transform 0.2s ease;
+}
+
+@media (min-width: 640px) {
+  .opp-hand-wrapper {
+    margin: 0 -12px;
+  }
+}
+
+.opp-hand-wrapper .poker-card {
+  width: 40px;
+  height: 60px;
+  border-radius: 6px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+  cursor: default;
+}
+
+@media (min-width: 640px) {
+  .opp-hand-wrapper .poker-card {
+    width: 50px;
+    height: 75px;
+    border-radius: 7px;
+  }
+}
+
+.opp-fan-4-0 { transform: rotate(8deg) translateY(3px); z-index: 10; }
+.opp-fan-4-1 { transform: rotate(3deg) translateY(0px); z-index: 11; }
+.opp-fan-4-2 { transform: rotate(-3deg) translateY(0px); z-index: 12; }
+.opp-fan-4-3 { transform: rotate(-8deg) translateY(3px); z-index: 13; }
+
+.opp-fan-3-0 { transform: rotate(6deg) translateY(2px); z-index: 10; }
+.opp-fan-3-1 { transform: rotate(0deg) translateY(0px); z-index: 11; }
+.opp-fan-3-2 { transform: rotate(-6deg) translateY(2px); z-index: 12; }
+
+.opp-fan-2-0 { transform: rotate(4deg) translateY(1px); z-index: 10; }
+.opp-fan-2-1 { transform: rotate(-4deg) translateY(1px); z-index: 11; }
+
+.opp-fan-1-0 { transform: rotate(0deg) translateY(0px); z-index: 10; }
+
+/* ================= 클래시 로얄 유닛 도감 (Unit Library Modal) ================= */
+.collection-card-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px 6px;
+  border-radius: 14px;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(51, 65, 85, 0.4);
+  transition: all 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+  cursor: pointer;
+  user-select: none;
+  width: 100%;
+  max-width: 140px;
+}
+
+.collection-card-item:hover {
+  background: rgba(30, 41, 59, 0.85);
+  border-color: rgba(245, 158, 11, 0.5);
+  transform: translateY(-5px);
+  box-shadow: 0 10px 24px -4px rgba(0, 0, 0, 0.7), 0 0 15px rgba(245, 158, 11, 0.2);
+}
+
+.collection-card-item .poker-card {
+  margin: 0 auto;
+}
+
+.collection-card-item:hover .poker-card {
+  filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.9));
+}
+
+.card-filter-btn {
+  transition: all 0.15s ease-in-out;
+}
+
+.card-filter-btn.active {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+  color: #0f172a !important;
+  font-weight: 800 !important;
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.45);
+  border-color: #fde047 !important;
+}
+
+/* 유닛 상세 팝업 대형 카드 */
+.card-detail-large-preview .poker-card {
+  width: 130px;
+  height: 198px;
+  border-radius: 14px;
+  cursor: default;
+  filter: drop-shadow(0 12px 28px rgba(0, 0, 0, 0.85));
+}
+
+@media (min-width: 640px) {
+  .card-detail-large-preview .poker-card {
+    width: 160px;
+    height: 244px;
+    border-radius: 16px;
+  }
+}
+
+
+
